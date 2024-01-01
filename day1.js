@@ -4,7 +4,7 @@ let flock;
 function setup() {
   randomSeed(42);
 
-  createCanvas(800, 800);
+  createCanvas(windowWidth, windowHeight);
 
   flock = new Flock();
   // Add an initial set of boids into the system
@@ -19,15 +19,11 @@ function draw() {
   textSize(100)
   fill('white')
   let s = "tomoro.ai"
-  text(s,200,400)
   let w = textWidth(s);
+  text(s,windowWidth/2-w/2,windowHeight/2)
 
   noStroke()
-  // fill('red')
-  // circle(200+w/2,400,50)
-  // stroke('green')
-  // line(200, 400, 200 + w, 400);
-  // console.log(200+w/2)
+
   
   flock.run();
 }
@@ -195,7 +191,10 @@ Boid.prototype.borders = function() {
 Boid.prototype.avoid = function(boids){
   let radius = 90;
   let steer = createVector(0, 0);
-  let textpoint = createVector(408, 400)
+  textSize(100)
+  let s = "tomoro.ai"
+  let w = textWidth(s);
+  let textpoint = createVector(windowWidth/2+w/2, windowHeight/2)
 
   let d = p5.Vector.dist(this.position, textpoint)
   if ((d>0) && (d<radius)){
