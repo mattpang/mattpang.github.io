@@ -152,7 +152,7 @@ Boid.prototype.connected = function(boids){
       }
       
       
-    if ((d < gap*2)&&(d < gap*4)) {
+    if ((d > gap*2)&&(d < gap*4)&&(i%9==0)) {
         stroke(255,255,255,20)
               
         line(this.position.x,this.position.y,boids[i].position.x,boids[i].position.y)
