@@ -32,7 +32,17 @@
     <body>
 
         <main class="container">
-            <article id="grade_school_maths_section" class="nhidden">
+            <article id="start_section">
+                <h1>Which LLMs could you beat?</h1>
+                <h3>Methodology</h3>
+                <p>We have sampled questions from several benchmarks that are used for LLMs. These include: GSM8K for grade school maths probelms, RACE-h for high school level reading compresheion. MMLU for general knowledge at for college level subjects and MBPP for basic python coding questions.</p>
+                <p>Note: This is for fun, and not very scientific. When we benchmark LLMs we test on thousands of questions to improve on the accuracy of the metrics. Here we only do 5 questions in each section, and 15 in general knowledge.</p>
+                <center>
+                    <button onclick="start_quiz('start_section','grade_school_maths_section')">Start</button>
+                </center>
+            </article>
+
+            <article id="grade_school_maths_section" class="hidden">
                 <header>
                     <h1>Maths</h1>
                     <h3 id="maths_section">Question 1/5</h3>
@@ -205,9 +215,10 @@ ${code}
 
     let dataset
     let max_questions = 5
+    let gk_factor = 3
     let q_count = 100
     let order = Array.from({ length: q_count-1 }, (value, index) => index)// storing a shuffled set (1..q_count)
-    let shuffle = false
+    let shuffle = true
     if (shuffle){
         shuffleArray(order)
     }
@@ -230,7 +241,7 @@ ${code}
     fetch('combined.json').then(d=>d.json()).then(d=>{
             dataset =d 
             return d}).then(d=>{
-                populate_maths(d)
+                // populate_maths(d)
                 // populate_reading(d)
                 // populate_general_knowledge(d)
                 // populate_code(d)
@@ -287,7 +298,7 @@ ${code}
     function populate_general_knowledge(d){
 
         q = d['general_knowledge'][order[question_index['general_knowledge_section']]]
-        document.getElementById('knowledge_section').innerText = `Question ${1+question_index['general_knowledge_section']}/${max_questions}`
+        document.getElementById('knowledge_section').innerText = `Question ${1+question_index['general_knowledge_section']}/${max_questions*gk_factor}`
         document.getElementById('knowledge_section_topic').innerText = q['topic']
 
         document.getElementById('general_knowledge_question').innerText = q['input']
@@ -337,9 +348,20 @@ ${code}
     fmap['coding_section'] = populate_code
     fmap['summary_section'] = show_results
 
+
+    function start_quiz(this_section,next_section){
+        document.getElementById(this_section).classList.add('hidden')
+        document.getElementById(next_section).classList.remove('hidden')
+        fmap[next_section](dataset)
+    }
+
     function next_q(this_section,next_section){
         console.log(question_index[this_section])
-        if (question_index[this_section]+1 <= max_questions) {
+        factor = 1
+        if (this_section=='general_knowledge_section'){
+            factor*=gk_factor
+        }
+        if (question_index[this_section]+1 <= max_questions*factor) {
             fmap[this_section](dataset)
         } else {
             console.log('section complete!')
@@ -397,7 +419,7 @@ ${code}
         }
         let score = ((correct_ans==u_chosen)?1:0)
         console.log(correct_ans,u_chosen,correct_ans==u_chosen,score)
-        overall_score['high_school_reading_section'].push(score)
+        overall_score['general_knowledge_section'].push(score)
     }
 
     const waitFor = async (condition, pollInterval = 500, timeoutAfter) => {
