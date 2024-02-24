@@ -1,11 +1,527 @@
 <html>
-  <head>
-<title>Home page</title>
-</head>
-  <body>
-    <main>
-        Nothing to see here.
-        Day 1 done.
-    </main>
-  </body>
+    <head>
+        <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css" />
+        <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.6/ace.min.js" integrity="sha512-kiECX53fzPhY5cnGzxTUZUOefsjR7gY3SD2OOgcsxZ0nAMZ3e+lkqxhXzGAFm05KjIaQ49/OyNryGTcbLb2V9w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        
+        <link rel="stylesheet" href="pico.css"/>
+
+        <style>
+            
+            /* .container {
+                max-width: 60%;
+            } */
+            .hidden{
+                display: none;
+            }
+
+            #editor {
+                position: relative;
+                height:300px;
+                width: 400px;
+                margin:auto;
+            }
+
+            /* .py-error{
+                display: none;
+            } */
+
+        </style>
+
+    </head>
+    <body>
+
+        <main class="container">
+            <article id="grade_school_maths_section" class="nhidden">
+                <header>
+                    <h1>Maths</h1>
+                    <h3 id="maths_section">Question 1/5</h3>
+                    <h4 id="maths_question"></h4>
+                </header>
+                <div role="group">
+
+                    <textarea id="maths_user" placeholder="Your answer..."></textarea>
+
+                    <button onclick="eval_maths();next_q('grade_school_maths_section','high_school_reading_section')">Next</button>
+                </div>
+
+                <footer>
+                </footer>
+
+            </article>
+            <article id="high_school_reading_section" class="hidden">
+                <header>
+                    <h1>Reading</h1>
+                    <h3 id="reading_section">Question 1/5</h3>
+                    <h5>
+                        Please read the following passage and answer the question. 
+                    </h5>
+                    <h5>
+                        Check the correct option for each question.
+                    </h5>
+                </header>
+                <blockquote id="reading_article"></blockquote>
+
+                
+                  
+                <article id="reading_questions">
+
+                </article>
+                <button onclick="eval_reading();next_q('high_school_reading_section','general_knowledge_section')">Next</button>
+
+            </article>
+
+            <article id="general_knowledge_section" class="hidden">
+                <header>
+                    <h1>General Knowledge</h1>
+                    <h3 id="knowledge_section">Question 1/5</h3> <h3 id='knowledge_section_topic'></h3>
+                    <h5>
+                        Check the correct option for each question.
+                    </h5>
+                </header>
+                <blockquote id="general_knowledge_question"></blockquote>
+
+                <article id="general_knowledge_choices">
+
+                </article>
+                <button onclick="eval_general_knowledge();next_q('general_knowledge_section','coding_section')">Next</button>
+
+            </article>
+
+            <article id='coding_section' class="hidden">
+                <header>
+                    <h1>Coding</h1>
+                    <h3>Question 1/5</h3>
+                    <div id="prompt"></div>
+                </header>
+                    <div id="editor">stuff</div>
+                <footer>
+                    <nav>
+                        <ul></ul>
+                        <ul>
+                            <li>
+                                <button onclick="skip_to('summary_section')">Skip Section</button>
+                            </li>
+                            <li>
+                                <!-- <button onclick="run_python()">Submit</button> -->
+                                <!-- next_q('coding_section','summary_section') -->
+                                <button onclick="run_python(); eval_code();">Next</button>
+
+                            </li>
+                        </ul>
+                    </nav>
+
+                </footer>
+                <textarea id="asserts" class="hidden"></textarea>
+                <textarea id="check" class="hidden"></textarea>
+                <div id="python_results" class="hidden"></div>
+            </article>
+            
+            <article id="summary_section" class="hidden">
+                <h1>Well done!</h1>
+                <h2>Your score was:</h2>
+                <div id="final_results"></div>
+            </article>
+
+        </main>
+
+    </body>
+
+
+    <script>
+
+var myPyScript; // where I remember my pyscript object
+var output = document.createElement("div"); // the div object where the output goes
+output.id = "myPyScriptOutput";
+document.body.appendChild(output);
+
+
+function add_indent(s){
+    // for every new line break 
+    // add tab for each line. 
+    console.log(s)
+    return s.replaceAll('\n','\n    ')
+}
+
+
+function run_python(text) {
+
+        // pyscript
+let div = document.createElement("div");
+// let user_code = add_indent(document.getElementById('user_entry').value)
+let user_code = add_indent(ace.edit("editor").getValue())
+let assertions = add_indent(document.getElementById('asserts').value)
+
+document.getElementById('check').value = user_code
+
+let code = `from pyscript import window, document
+import math
+
+try:
+    ${user_code}
+    ${assertions}
+
+    my_element = document.querySelector("#python_results")
+    my_element.innerText = 'PASSED ALL CHECKS'
+except Exception as e:
+    my_element = document.querySelector("#python_results")
+    my_element.innerText = window.location.hostname
+    my_element.innerText = 'FAILED ONE OR MORE ALL CHECKS'
+    print('error:',e)
+`
+        let html = `
+            <py-script output="${output.id}">
+
+${code}
+            </py-script>
+            `;
+        div.innerHTML = html;
+
+        // if we did this before, remove the script from the body
+        if (myPyScript) {
+            myPyScript.remove();
+        }
+        // now remember the new script
+        myPyScript = div.firstElementChild;
+        try {
+             // add it to the body - this will already augment the tag in certain ways
+            document.body.appendChild(myPyScript);
+            // execute the code / evaluate the expression
+            // myPyScript.evaluate();
+        } catch (error) {
+            console.error("Python error:");
+            console.error(error);
+        }
+
+    }
+
+
+    function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    }
+
+    let dataset
+    let max_questions = 5
+    let q_count = 100
+    let order = Array.from({ length: q_count-1 }, (value, index) => index)// storing a shuffled set (1..q_count)
+    let shuffle = false
+    if (shuffle){
+        shuffleArray(order)
+    }
+    let code_editor = ace.edit("editor");
+    code_editor.setTheme("ace/theme/monokai");
+    code_editor.session.setMode("ace/mode/python");
+    let question_index = {}
+    question_index['grade_school_maths_section'] = 0 
+    question_index['high_school_reading_section'] = 0 
+    question_index['general_knowledge_section'] = 0 
+    question_index['coding_section'] = 0 
+    
+    let overall_score = {}
+    overall_score['grade_school_maths_section'] = []
+    overall_score['high_school_reading_section'] = []
+    overall_score['general_knowledge_section'] = []
+    overall_score['coding_section'] = []
+
+
+    fetch('combined.json').then(d=>d.json()).then(d=>{
+            dataset =d 
+            return d}).then(d=>{
+                populate_maths(d)
+                // populate_reading(d)
+                // populate_general_knowledge(d)
+                // populate_code(d)
+            })
+
+
+    function populate_maths(d){
+        // clear any old inputs 
+        document.getElementById('maths_user').value=''
+        q = d['grade_school_maths'][order[question_index['grade_school_maths_section']]]
+        document.getElementById('maths_section').innerText = `Question ${1+question_index['grade_school_maths_section']}/${max_questions}`
+        document.getElementById('maths_question').innerText = q['question']
+        question_index['grade_school_maths_section']+=1
+    }
+
+    function populate_reading(d){
+        q = d['high_school_reading'][order[question_index['high_school_reading_section']]]
+        document.getElementById('reading_section').innerText = `Question ${1+question_index['high_school_reading_section']}/${max_questions}`
+        document.getElementById('reading_article').innerText = q['article']
+
+        q_section = document.getElementById('reading_questions')
+        q_section.innerHTML=''
+        let letters = 'ABCDEFGH'
+        // populate the options. with every Q/A pair
+        for (qidx in q['questions']){
+            fieldset = document.createElement('fieldset')
+            legend = document.createElement('legend')
+            legend.innerHTML='<strong>'+q['questions'][qidx]+'</strong>'
+            fieldset.appendChild(legend)
+            let oidx = 0
+            for (o of q['options'][qidx]){
+                label = document.createElement('label')
+                // label.setAttribute('for','choice_'+oidx)
+                myinput = document.createElement('input')
+                myinput.classList.add('check_ans')
+                myinput.id = 'choice_'+qidx+'_'+oidx
+                myinput.type = "radio"
+                myinput.value = letters[oidx]
+                myinput.name = 'question_'+qidx
+                oidx+=1
+                label.appendChild(myinput)
+                label.append(o)
+                fieldset.appendChild(label)
+
+            }
+
+
+            q_section.appendChild(fieldset)
+        }
+
+        question_index['high_school_reading_section']+=1
+    }
+
+    function populate_general_knowledge(d){
+
+        q = d['general_knowledge'][order[question_index['general_knowledge_section']]]
+        document.getElementById('knowledge_section').innerText = `Question ${1+question_index['general_knowledge_section']}/${max_questions}`
+        document.getElementById('knowledge_section_topic').innerText = q['topic']
+
+        document.getElementById('general_knowledge_question').innerText = q['input']
+
+        q_section = document.getElementById('general_knowledge_choices')
+        q_section.innerHTML=''
+
+        fieldset = document.createElement('fieldset')
+        legend = document.createElement('legend')
+        legend.innerHTML='<strong>Choices:</strong>'
+        fieldset.appendChild(legend)
+        for (letter of ['A','B','C','D']){
+            
+            label = document.createElement('label')
+            myinput = document.createElement('input')
+            myinput.classList.add('check_ans')
+            myinput.type = "radio"
+            myinput.value = letter
+            myinput.name = 'kg_question'
+            label.appendChild(myinput)
+            label.append(q[letter])
+            fieldset.appendChild(label)
+        }
+        q_section.appendChild(fieldset)
+
+        question_index['general_knowledge_section']+=1
+
+    }
+
+    
+
+    function populate_code(d){
+        q = d['coding'][order[question_index['coding_section']]]
+        document.getElementById('prompt').innerText = q['prompt']
+        // document.getElementById('user_entry').value = q['function']
+        // document.getElementById('editor').innerHTML = q['code']
+        code_editor.setValue(q['function'],-1)
+        document.getElementById('asserts').value = q['test_list'].join('\n')
+        question_index['coding_section']+=1
+
+    }
+    
+    fmap = {}
+    fmap['grade_school_maths_section'] = populate_maths
+    fmap['high_school_reading_section'] = populate_reading
+    fmap['general_knowledge_section'] = populate_general_knowledge
+    fmap['coding_section'] = populate_code
+    fmap['summary_section'] = show_results
+
+    function next_q(this_section,next_section){
+        console.log(question_index[this_section])
+        if (question_index[this_section]+1 <= max_questions) {
+            fmap[this_section](dataset)
+        } else {
+            console.log('section complete!')
+            document.getElementById(this_section).classList.add('hidden')
+            document.getElementById(next_section).classList.remove('hidden')
+            fmap[next_section](dataset)
+
+        }
+    }
+
+    function eval_maths(){
+        correct_ans = dataset['grade_school_maths'][order[question_index['grade_school_maths_section']-1]]['answer']
+        // remove all non numeric from text
+        u_input = document.getElementById('maths_user').value
+        u_input = u_input.replace('/\D/g','')
+        let score = ((u_input==correct_ans)? 1: 0)
+        console.log(u_input,correct_ans,score)
+        overall_score['grade_school_maths_section'].push(score)
+    }
+
+
+    function eval_reading(){
+        
+        console.log(question_index['high_school_reading_section'])
+        correct_ans = dataset['high_school_reading'][order[question_index['high_school_reading_section']-1]]['answers']
+        console.log(correct_ans)
+        let qidx = 0 
+        let score = 0
+        for (ans of correct_ans){
+            try {
+                u_chosen = document.querySelector(`input[name=question_${qidx}]:checked`).value
+            } catch (error) {
+                u_chosen = null
+            }
+            console.log(qidx,u_chosen,ans)
+            if (u_chosen==ans){
+                score+=1
+            }
+            qidx+=1
+        }
+        score = score/correct_ans.length
+        console.log(score)
+        overall_score['high_school_reading_section'].push(score)
+    }
+
+
+    function eval_general_knowledge(){
+        // console.log(question_index['general_knowledge_section'])
+        correct_ans = dataset['general_knowledge'][order[question_index['general_knowledge_section']-1]]['target']
+        
+        try {
+            u_chosen = document.querySelector(`input[name=kg_question]:checked`).value
+        } catch (error) {
+            u_chosen = null
+        }
+        let score = ((correct_ans==u_chosen)?1:0)
+        console.log(correct_ans,u_chosen,correct_ans==u_chosen,score)
+        overall_score['high_school_reading_section'].push(score)
+    }
+
+    const waitFor = async (condition, pollInterval = 500, timeoutAfter) => {
+    // Track the start time for timeout purposes
+    const startTime = Date.now();
+
+    while (true) {
+        // Check for timeout, bail if too much time passed
+        if(typeof(timeoutAfter) === 'number' && Date.now() > startTime + timeoutAfter) {
+        throw 'Condition not met before timeout';
+        }
+
+        // Check for conditon immediately
+        const result = await condition();
+
+        // If the condition is met...
+        if(result) {
+        // Return the result....
+        return result;
+        }
+
+        // Otherwise wait and check after pollInterval
+        await new Promise(r => setTimeout(r, pollInterval));
+    }
+    };
+
+    function eval_code(){
+        // keep trying this until we get something
+        waitFor(() => document.getElementById('python_results').innerText.length>1).then(d=>{
+            var score = ((document.getElementById('python_results').innerText=='PASSED ALL CHECKS')?1:0)
+            console.log(score)
+            overall_score['coding_section'].push(score)
+            next_q('coding_section','summary_section')
+            // show_results()
+        })
+
+
+
+    }
+
+    function skip_to(section){
+        // just skip this section. no points for coding
+        // glue on any remaining points as zeros. 
+        overall_score['coding_section'] = new Array(max_questions).fill(0);
+        show_results()
+    }
+
+    function show_results(){
+        document.getElementById('coding_section').classList.add('hidden')
+        document.getElementById('summary_section').classList.remove('hidden')
+
+        let cat_lookup = {}
+        cat_lookup['grade_school_maths_section']='maths'
+        cat_lookup['high_school_reading_section']='reading'
+        cat_lookup['coding_section']='coding'
+
+        for (const [k,v] of Object.entries(overall_score)){
+            const sum = v.reduce((a, b) => a + b, 0);
+            const avg = (sum / v.length) || 0;
+            console.log(k,v,Math.round(avg*10)/10)
+        }
+
+        document.getElementById('final_results').innerText = JSON.stringify(overall_score)
+
+    }
+
+
+    let benchmark = {}
+        benchmark['phi-1'] = {}
+        benchmark['phi-1']['coding'] = 55.5
+        benchmark['phi-1']['math'] = 40.0
+        benchmark['phi-1']['reading'] = null
+
+        benchmark['phi-2'] = {}
+        benchmark['phi-2']['coding'] = 59.1
+        benchmark['phi-2']['math'] = 61.1
+        benchmark['phi-2']['reading'] = null
+
+        benchmark['llama2-70B'] = {}
+        benchmark['llama2-70B']['reading'] = 85.1
+        benchmark['llama2-70B']['coding'] = 58.0
+        benchmark['llama2-70B']['math'] = 56.4
+        
+        benchmark['gpt3'] = {}
+        benchmark['gpt3']['reading'] = 35
+        benchmark['gpt3']['maths'] = 12.1
+        benchmark['gpt3']['cooding'] = 4.6
+
+        // gpt3.5-turbo-0301
+        benchmark['gpt3.5-turbo'] = {}
+        benchmark['gpt3.5-turbo']['reading'] = 81.4
+        benchmark['gpt3.5-turbo']['maths'] = 78
+        benchmark['gpt3.5-turbo']['coding'] = 82.5
+
+        // gpt-4-0613
+        benchmark['gpt4'] = {}
+        benchmark['gpt4']['reading'] = 90.8
+        benchmark['gpt4']['maths'] = 92
+        benchmark['gpt4']['coding'] = 85.7
+
+        benchmark['gemini ultra'] = {}
+        benchmark['gemini ultra']['reading'] = 90.0
+        benchmark['gemini ultra']['maths'] = 94.4
+        benchmark['gemini ultra']['coding'] = 75
+
+        benchmark['gemini Pro'] = {}
+        benchmark['gemini Pro']['reading'] = 80.0
+        benchmark['gemini Pro']['maths'] = 86.5
+        benchmark['gemini Pro']['coding'] = 70
+
+        benchmark['gemini nano'] = {}
+        benchmark['gemini nano']['reading'] = 40
+        benchmark['gemini nano']['maths'] = 23
+        benchmark['gemini nano']['coding'] = 27
+
+    // overall_score['grade_school_maths_section'] = [0,0,0,0,0,0,1,0,1,1]
+    // overall_score['high_school_reading_section'] = [1,1,1,1,1,1,0,0,0]
+    // overall_score['coding_section'] = [1,0,0,1,1,1]
+
+    // show_results()
+    </script>
+
+
+
+
+
 </html>
