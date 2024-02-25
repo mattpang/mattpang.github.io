@@ -11,15 +11,24 @@
   margin: 0;
 }
 
+html {
+  height: -webkit-fill-available;
+}
+
 body {
   background-color: #031727;
   overflow: hidden;
   font-family: sans-serif;
+  min-height: 100vh;
+  /* mobile viewport bug fix */
+  min-height: -webkit-fill-available;
 }
 
 .picker {
   width: 100vw;
   height: 100vh;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
   padding: 10%;
   overflow: hidden;
   display: flex;
@@ -78,8 +87,9 @@ body {
   /* background-color: #E0E0E0 !important; */
   color: #031727;
   width: 90vw;
-  /* max-width: 600px; */
-  height: 40vh;
+  max-width: 400px;
+  height: 50vh;
+  /* height: calc(0.5*-webkit-fill-available); */
   background: #FFFFFF;
   padding-bottom: 40px;
   border-radius: 8px;
