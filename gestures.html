@@ -17,7 +17,7 @@ body {
   font-family: sans-serif;
 }
 
-.tinder {
+.picker {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
@@ -28,11 +28,11 @@ body {
   transition: opacity 0.1s ease-in-out;
 }
 
-.loaded.tinder {
+.loaded.picker {
   opacity: 1;
 }
 
-.tinder--status {
+.picker--status {
   position: absolute;
   top: 50%;
   margin-top: -30px;
@@ -42,7 +42,7 @@ body {
   pointer-events: none;
 }
 
-.tinder--status i {
+.picker--status i {
   font-size: 100px;
   opacity: 0;
   transform: scale(0.3);
@@ -52,17 +52,17 @@ body {
   margin-left: -50px;
 }
 
-.tinder_love .fa-check {
+.picker_love .fa-check {
   opacity: 0.7;
   transform: scale(1);
 }
 
-.tinder_nope .fa-remove {
+.picker_nope .fa-remove {
   opacity: 0.7;
   transform: scale(1);
 }
 
-.tinder--cards {
+.picker--cards {
   flex-grow: 1;
   padding-top: 40px;
   text-align: center;
@@ -72,7 +72,7 @@ body {
   z-index: 1;
 }
 
-.tinder--card {
+.picker--card {
   display: inline-block;
   /* background-color: #E0E0E0 !important; */
   color: #031727;
@@ -91,39 +91,39 @@ body {
   cursor: grab;
 }
 
-.moving.tinder--card {
+.moving.picker--card {
   transition: none;
   cursor: -webkit-grabbing;
   cursor: -moz-grabbing;
   cursor: grabbing;
 }
 
-.tinder--card img {
+.picker--card img {
   max-width: 100%;
   pointer-events: none;
 }
 
-.tinder--card h3 {
+.picker--card h3 {
   margin-top: 32px;
   font-size: 32px;
   padding: 0 16px;
   pointer-events: none;
 }
 
-.tinder--card p {
+.picker--card p {
   margin-top: 24px;
   font-size: 20px;
   padding: 0 16px;
   pointer-events: none;
 }
 
-.tinder--buttons {
+.picker--buttons {
   flex: 0 0 100px;
   text-align: center;
   padding-top: 20px;
 }
 
-.tinder--buttons button {
+.picker--buttons button {
   border-radius: 50%;
   line-height: 60px;
   height: 60px;
@@ -134,15 +134,15 @@ body {
   margin: 0 8px;
 }
 
-.tinder--buttons button:hover {
+.picker--buttons button:hover {
     box-shadow: 0 0 20px 5px #48abe0;
 }
 
-.tinder--buttons button:focus {
+.picker--buttons button:focus {
   outline: 0;
 }
 
-.tinder--buttons i {
+.picker--buttons i {
   font-size: 32px;
   vertical-align: middle;
 }
@@ -161,36 +161,36 @@ body {
     <body>
 
 
-        <div class="tinder">
-            <div class="tinder--status">
+        <div class="picker">
+            <div class="picker--status">
               <i class="fa fa-remove"></i>
               <i class="fa fa-check"></i>
             </div>
           
-            <div class="tinder--cards">
-              <div class="tinder--card">
+            <div class="picker--cards">
+              <div class="picker--card">
                 <h3>Demo card 1</h3>
                 <p>Statement : swipe to validate or remove</p>
               </div>
-              <div class="tinder--card">
+              <div class="picker--card">
                 <h3>Demo card 2</h3>
                 <p>Statement : swipe to validate or remove</p>
               </div>
-              <div class="tinder--card">
+              <div class="picker--card">
                 <h3>Demo card 3</h3>
                 <p>Statement : swipe to validate or remove</p>
               </div>
-              <div class="tinder--card">
+              <div class="picker--card">
                 <h3>Demo card 4</h3>
                 <p>Statement : swipe to validate or remove</p>
               </div>
-              <div class="tinder--card">
+              <div class="picker--card">
                 <h3>Demo card 5</h3>
                 <p>Statement : swipe to validate or remove</p>
               </div>
             </div>
           
-            <div class="tinder--buttons">
+            <div class="picker--buttons">
               <button id="nope"><i class="fa fa-remove"></i></button>
               <button id="love"><i class="fa fa-check"></i></button>
             </div>
@@ -200,13 +200,13 @@ body {
     <script>
         'use strict';
 
-var tinderContainer = document.querySelector('.tinder');
-var allCards = document.querySelectorAll('.tinder--card');
+var pickerContainer = document.querySelector('.picker');
+var allCards = document.querySelectorAll('.picker--card');
 var nope = document.getElementById('nope');
 var love = document.getElementById('love');
 
 function initCards(card, index) {
-  var newCards = document.querySelectorAll('.tinder--card:not(.removed)');
+  var newCards = document.querySelectorAll('.picker--card:not(.removed)');
 
   newCards.forEach(function (card, index) {
     card.style.zIndex = allCards.length - index;
@@ -214,7 +214,7 @@ function initCards(card, index) {
     card.style.opacity = (10 - index) / 10;
   });
   
-  tinderContainer.classList.add('loaded');
+  pickerContainer.classList.add('loaded');
 }
 
 initCards();
@@ -230,8 +230,8 @@ allCards.forEach(function (el) {
     if (event.deltaX === 0) return;
     if (event.center.x === 0 && event.center.y === 0) return;
 
-    tinderContainer.classList.toggle('tinder_love', event.deltaX > 80);
-    tinderContainer.classList.toggle('tinder_nope', event.deltaX < -80);
+    pickerContainer.classList.toggle('picker_love', event.deltaX > 80);
+    pickerContainer.classList.toggle('picker_nope', event.deltaX < -80);
 
     var xMulti = event.deltaX * 0.03;
     var yMulti = event.deltaY / 80;
@@ -242,8 +242,8 @@ allCards.forEach(function (el) {
 
   hammertime.on('panend', function (event) {
     el.classList.remove('moving');
-    tinderContainer.classList.remove('tinder_love');
-    tinderContainer.classList.remove('tinder_nope');
+    pickerContainer.classList.remove('picker_love');
+    pickerContainer.classList.remove('picker_nope');
 
     var moveOutWidth = document.body.clientWidth;
     var keep = Math.abs(event.deltaX) < 80 || Math.abs(event.velocityX) < 0.5;
@@ -269,7 +269,7 @@ allCards.forEach(function (el) {
 
 function createButtonListener(love) {
   return function (event) {
-    var cards = document.querySelectorAll('.tinder--card:not(.removed)');
+    var cards = document.querySelectorAll('.picker--card:not(.removed)');
     var moveOutWidth = document.body.clientWidth * 1.5;
 
     if (!cards.length) return false;
