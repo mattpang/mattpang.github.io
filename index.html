@@ -35,7 +35,7 @@
     <body>
 
         <main class="container">
-            <article id="start_section" class="hidden">
+            <article id="start_section" class="nhidden">
                 <h1>Which LLMs could you beat?</h1>
                 <h3>Methodology</h3>
                 <p>We have sampled questions from several benchmarks that are used for LLMs. These include: GSM8K for grade school maths probelms, RACE-h for high school level reading compresheion. MMLU for general knowledge at for college level subjects and MBPP for basic python coding questions.</p>
@@ -132,7 +132,7 @@
                 <div id="python_results" class="hidden"></div>
             </article>
             
-            <article id="summary_section" class="nhidden">
+            <article id="summary_section" class="hidden">
 
                 <p>Not to make you feel worst, but these large language models typical complete this test in a fraction of the time you took.</p>
                 <p>Hover over each one to find out more.</p>
@@ -644,12 +644,12 @@ ${code}
         benchmark['gemini nano']['general knowledge'] = 55.8
         benchmark['gemini nano']['about'] = 'A smaller Gemini, designed for smartphones.'
 
-    overall_score['grade_school_maths_section'] = [0,0,0,0,0,0,1,0,1,1]
-    overall_score['high_school_reading_section'] = [1,1,1,1,1,1,0,0,0]
-    overall_score['general_knowledge_section'] = [1,1,1,1,1,1,0,1,1,1,1,1,0,0]
-    overall_score['coding_section'] = [1,0,0,1,1,1]
+    // overall_score['grade_school_maths_section'] = [0,0,0,0,0,0,1,0,1,1]
+    // overall_score['high_school_reading_section'] = [1,1,1,1,1,1,0,0,0]
+    // overall_score['general_knowledge_section'] = [1,1,1,1,1,1,0,1,1,1,1,1,0,0]
+    // overall_score['coding_section'] = [1,0,0,1,1,1]
 
-    show_results()
+    // show_results()
 
     </script>
 
