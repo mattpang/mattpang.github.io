@@ -1,0 +1,181 @@
+<html>
+
+
+    <head>
+    
+        <link rel="stylesheet" href="pico.css"/>
+        <script src="https://unpkg.com/typeit@8.7.1/dist/index.umd.js"></script>
+
+<style>
+
+
+
+.invisible {
+  opacity: 0.2;
+}
+
+
+
+</style>
+    
+    </head>
+
+    
+
+
+<body>
+
+    <main class="container">
+        <hgroup>
+            <h1>Understanding Embeddings</h1>
+            <p>25th Feb 2024. Matt Pang</p>
+        </hgroup>
+    <section id="demos" class="invisible">
+      <p>This demo calculates the embedding of the two piece of input text and measure their topic similarity. Each embedding is a vector of 100 elements.</p>
+      <p>We are using an embedding model called "Universal Sentence Encoder". It is small enough to run on the browser, but it doesn't underestand very much and is terrible. But you get the idea.</p>
+      <p>Cosine similarity ranges from -1 to 1, with a higher number meaning the two texts' topics are more similar.</p>
+      <p><em>Note: Two sentence of the same topic but with opposite meaning will have high similarity score, while two sentence of unrelated topics will have low similarity score.</em></p>
+
+        <div class="grid">
+
+            <textarea id="textInput1"  rows="4" cols="40" aria-label="Text Input" placeholder="Enter text here">I like my phone</textarea>
+            <textarea id="textInput2"  rows="4" cols="40" aria-label="Text Input" placeholder="Enter text to compare here">What is your age?</textarea>
+        </div>
+
+        <details>
+            <summary> View Vectors (not normalise)</summary>
+            <div class="grid">
+                <pre id ='embed_result1'></pre>
+                <pre id ='embed_result2'></pre>
+            </div>
+        </details>
+
+
+<p><b>Similarity:</b></p>
+      <!-- inner product: <p id="innerproduct"></p> -->
+      Cosine distance: <p id="cosine"></p>
+    </section>
+
+    </main>
+
+    </body>
+
+
+<script>
+    
+</script>
+
+<script type="module">
+import text from "https://cdn.skypack.dev/@mediapipe/tasks-text@0.10.0";
+const { TextEmbedder, FilesetResolver, TextEmbedderResult } = text;
+const demosSection = document.getElementById("demos");
+let textEmbedder;
+// Before we can use TextEmbedder class we must wait for it to finish loading.
+async function createEmbedder() {
+    const textFiles = await FilesetResolver.forTextTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-text@0.10.0/wasm");
+    textEmbedder = await TextEmbedder.createFromOptions(textFiles, {
+        baseOptions: {
+            modelAssetPath: `https://storage.googleapis.com/mediapipe-models/text_embedder/universal_sentence_encoder/float32/1/universal_sentence_encoder.tflite`
+        }
+    });
+    window.mytext = textEmbedder
+    console.log('loaded')
+    demosSection.classList.remove("invisible");
+}
+
+function normalizeVectorN(v) {
+    let magnitude = 0;
+    for (const component of v) {
+        magnitude += component * component;
+    }
+    magnitude = Math.sqrt(magnitude);
+    if (magnitude === 0) {
+        return new Array(v.length).fill(0);
+    }
+
+    const normalizedVector = v.map(component => component / magnitude);
+    return normalizedVector;
+}
+
+function dotProduct(vector1, vector2) {
+  let result = 0.0;
+  let vec1 = normalizeVectorN(vector1)
+  let vec2 = normalizeVectorN(vector2)
+  for (let i = 0; i < vec1.length; i++) {
+    result += vec1[i] * vec2[i];
+  }
+  return result;
+}
+
+createEmbedder().then(d=>{calculateSimilarity()})
+console.log('loaded2')
+const textInput1 = document.getElementById("textInput1");
+const textInput2 = document.getElementById("textInput2");
+const innerproduct_result = document.getElementById("innerproduct");
+const cosine_result = document.getElementById("cosine");
+
+textInput1.addEventListener("input", calculateSimilarity);
+textInput2.addEventListener("input", calculateSimilarity);
+
+async function calculateSimilarity() {
+    const text1 = textInput1.value;
+    const text2 = textInput2.value;
+
+    const embeddingResult1 = await textEmbedder.embed(text1);
+    const embeddingResult2 = await textEmbedder.embed(text2);
+    document.getElementById('embed_result1').innerText = roundoff(embeddingResult1)
+    document.getElementById('embed_result2').innerText = roundoff(embeddingResult2)
+    // Compute cosine similarity.
+    const cosine_similarity = TextEmbedder.cosineSimilarity(embeddingResult1.embeddings[0], embeddingResult2.embeddings[0]);
+    cosine_result.innerText = cosine_similarity.toFixed(2);
+    
+    // const similarity = dotProduct(embeddingResult1.embeddings[0]['floatEmbedding'], embeddingResult2.embeddings[0]['floatEmbedding'])
+    // innerproduct_result.innerText = similarity.toFixed(2)
+}
+function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function roundoff(emb){
+    
+    let ea = normalizeVectorN(emb['embeddings'][0]['floatEmbedding'])
+    var out = '['+ea.map(item => Math.round(100*item)/100)+']';
+    
+    return out
+    
+}
+
+window.calculateSimilarity = calculateSimilarity
+
+// new TypeIt("#textInput1", {
+//     speed: 50,
+//     loop: false,
+//     afterStep: async (instance) => {
+//         calculateSimilarity()
+//     // Will fire after each step in the queue.
+//   },
+//     afterComplete:
+//     async (instance) => {        
+//         instance.destroy();
+//     }
+//     }).type("I like my phone").pause(1500).delete().pause(500).type('The football game was so exciting.').go();
+
+
+
+
+// new TypeIt("#textInput2", {
+//     speed: 50,
+//     loop: false,
+//     afterStep: async (instance) => {
+//         calculateSimilarity()
+//     // Will fire after each step in the queue.
+//   },
+//     afterComplete:
+//     async (instance) => {        
+//         instance.destroy();
+//     }
+//     }).type("Let's harvest some potatoes").pause(1500).delete().pause(500).type('Shall we visit your parents next week?').go();
+
+</script>
+
+</html>
