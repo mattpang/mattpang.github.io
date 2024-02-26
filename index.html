@@ -22,6 +22,9 @@
                 margin:auto;
             }
 
+            .you {
+                background-color: rgba(0, 255, 255, 0.189) !important;
+            }
             /* .py-error{
                 display: none;
             } */
@@ -32,7 +35,7 @@
     <body>
 
         <main class="container">
-            <article id="start_section">
+            <article id="start_section" class="hidden">
                 <h1>Which LLMs could you beat?</h1>
                 <h3>Methodology</h3>
                 <p>We have sampled questions from several benchmarks that are used for LLMs. These include: GSM8K for grade school maths probelms, RACE-h for high school level reading compresheion. MMLU for general knowledge at for college level subjects and MBPP for basic python coding questions.</p>
@@ -52,13 +55,14 @@
 
                     <textarea id="maths_user" placeholder="Your answer..."></textarea>
 
-                    <button onclick="eval_maths();next_q('grade_school_maths_section','high_school_reading_section')">Next</button>
+                    <button onclick="eval_maths();sleep(1500).then(d=>{next_q('grade_school_maths_section','high_school_reading_section')})">Next</button>
                 </div>
 
                 <footer>
                 </footer>
 
             </article>
+
             <article id="high_school_reading_section" class="hidden">
                 <header>
                     <h1>Reading</h1>
@@ -77,7 +81,7 @@
                 <article id="reading_questions">
 
                 </article>
-                <button onclick="eval_reading();next_q('high_school_reading_section','general_knowledge_section')">Next</button>
+                <button onclick="eval_reading();sleep(1500).then(d=>{next_q('high_school_reading_section','general_knowledge_section')})">Next</button>
 
             </article>
 
@@ -94,14 +98,15 @@
                 <article id="general_knowledge_choices">
 
                 </article>
-                <button onclick="eval_general_knowledge();next_q('general_knowledge_section','coding_section')">Next</button>
+                <p id="general_knowledge_answer"></p>
+                <button onclick="eval_general_knowledge();sleep(1500).then(d=>{next_q('general_knowledge_section','coding_section')})">Next</button>
 
             </article>
 
             <article id='coding_section' class="hidden">
                 <header>
                     <h1>Coding</h1>
-                    <h3>Question 1/5</h3>
+                    <h3 id="coding_section_qcount">Question 1/5</h3>
                     <div id="prompt"></div>
                 </header>
                     <div id="editor">stuff</div>
@@ -127,10 +132,16 @@
                 <div id="python_results" class="hidden"></div>
             </article>
             
-            <article id="summary_section" class="hidden">
-                <h1>Well done!</h1>
-                <h2>Your score was:</h2>
+            <article id="summary_section" class="nhidden">
+
+                <p>Not to make you feel worst, but these large language models typical complete this test in a fraction of the time you took.</p>
+                <p>Hover over each one to find out more.</p>
+                <h2>Here's how you compare:</h2>
                 <div id="final_results"></div>
+
+                <div id="benchmark_table"></div>
+
+
             </article>
 
         </main>
@@ -153,6 +164,7 @@ function add_indent(s){
     return s.replaceAll('\n','\n    ')
 }
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function run_python(text) {
 
@@ -296,7 +308,7 @@ ${code}
     }
 
     function populate_general_knowledge(d){
-
+        document.getElementById('general_knowledge_answer').innerText=''
         q = d['general_knowledge'][order[question_index['general_knowledge_section']]]
         document.getElementById('knowledge_section').innerText = `Question ${1+question_index['general_knowledge_section']}/${max_questions*gk_factor}`
         document.getElementById('knowledge_section_topic').innerText = q['topic']
@@ -331,6 +343,7 @@ ${code}
     
 
     function populate_code(d){
+        document.getElementById('coding_section_qcount').innerText = `Question ${1+question_index['coding_section']}/${max_questions}`
         q = d['coding'][order[question_index['coding_section']]]
         document.getElementById('prompt').innerText = q['prompt']
         // document.getElementById('user_entry').value = q['function']
@@ -380,6 +393,9 @@ ${code}
         let score = ((u_input==correct_ans)? 1: 0)
         console.log(u_input,correct_ans,score)
         overall_score['grade_school_maths_section'].push(score)
+
+        document.getElementById('maths_user').value += '\nCorrect Answer:'+correct_ans
+        
     }
 
 
@@ -400,11 +416,18 @@ ${code}
             if (u_chosen==ans){
                 score+=1
             }
+
+            ga = document.querySelector(`input[name=question_${qidx}][value=${ans}]`).style.backgroundColor='green'
             qidx+=1
         }
+
+
+
         score = score/correct_ans.length
         console.log(score)
         overall_score['high_school_reading_section'].push(score)
+
+
     }
 
 
@@ -420,6 +443,10 @@ ${code}
         let score = ((correct_ans==u_chosen)?1:0)
         console.log(correct_ans,u_chosen,correct_ans==u_chosen,score)
         overall_score['general_knowledge_section'].push(score)
+        
+        document.querySelector(`input[value=${correct_ans}][name=kg_question]`).style.backgroundColor='green'
+
+        document.getElementById('general_knowledge_answer').innerText = 'Correct Answer was : '+correct_ans
     }
 
     const waitFor = async (condition, pollInterval = 500, timeoutAfter) => {
@@ -472,74 +499,158 @@ ${code}
         document.getElementById('summary_section').classList.remove('hidden')
 
         let cat_lookup = {}
-        cat_lookup['grade_school_maths_section']='maths'
+        cat_lookup['grade_school_maths_section']='math'
         cat_lookup['high_school_reading_section']='reading'
+        cat_lookup['general_knowledge_section']='general knowledge'
         cat_lookup['coding_section']='coding'
 
+        avg_score = {}
         for (const [k,v] of Object.entries(overall_score)){
             const sum = v.reduce((a, b) => a + b, 0);
             const avg = (sum / v.length) || 0;
-            console.log(k,v,Math.round(avg*10)/10)
+            // console.log(k,v,Math.round(avg*10)/10)
+            avg_score[cat_lookup[k]] = Math.round(avg*1000)/10
         }
 
-        document.getElementById('final_results').innerText = JSON.stringify(overall_score)
+        // make a table of benchmarks. 
+        topics = ['model','math','reading','general knowledge','coding']
+        
+        table = document.createElement('table')
+        thead = document.createElement('thead')
+        tr = document.createElement('tr')
+
+        for (topic of topics){
+            th = document.createElement('th')
+            th.innerText=topic
+            tr.appendChild(th)
+        }
+
+        thead.appendChild(tr)
+        table.appendChild(thead)
+
+        tbody = document.createElement('tbody')
+        
+        topics.splice(0,1)
+
+        tr = document.createElement('tr')
+        td = document.createElement('td')
+        td.classList = ['you']
+        td.innerText='You'
+        td.setAttribute('data-tooltip','Made of flesh and bone.')
+        tr.classList = ['you']
+        tr.appendChild(td)
+        for (topic of topics){            
+            td = document.createElement('td')
+                td.innerText=avg_score[topic]
+                tr.appendChild(td)
+                td.classList = ['you']
+        }
+
+        tbody.appendChild(tr)
+
+        for (model of Object.keys(benchmark)){
+            
+            tr = document.createElement('tr')
+            td = document.createElement('td')
+            td.innerText=model
+            td.setAttribute('data-tooltip',benchmark[model]['about'])
+            tr.appendChild(td)
+
+            for (topic of topics){
+                td = document.createElement('td')
+                td.innerText=benchmark[model][topic]
+                tr.appendChild(td)
+            }
+
+            tbody.appendChild(tr)
+        }
+
+        table.appendChild(tbody)
+
+        document.getElementById('benchmark_table').appendChild(table)
+        
+        // document.getElementById('final_results').innerText = JSON.stringify(overall_score)
 
     }
 
 
     let benchmark = {}
+
+
+
         benchmark['phi-1'] = {}
         benchmark['phi-1']['coding'] = 55.5
         benchmark['phi-1']['math'] = 40.0
-        benchmark['phi-1']['reading'] = null
+        benchmark['phi-1']['reading'] = 75
+        benchmark['phi-1']['general knowledge'] = 42
+        benchmark['phi-1']['about'] = 'Very small models by Microsoft, trained on textbooks.'
 
         benchmark['phi-2'] = {}
         benchmark['phi-2']['coding'] = 59.1
         benchmark['phi-2']['math'] = 61.1
-        benchmark['phi-2']['reading'] = null
+        benchmark['phi-2']['reading'] = 80
+        benchmark['phi-2']['general knowledge'] = 56.7
+        benchmark['phi-2']['about'] = 'Very small models by Microsoft, trained on textbooks.'
+
 
         benchmark['llama2-70B'] = {}
         benchmark['llama2-70B']['reading'] = 85.1
         benchmark['llama2-70B']['coding'] = 58.0
         benchmark['llama2-70B']['math'] = 56.4
-        
+        benchmark['llama2-70B']['general knowledge'] = 67.8
+        benchmark['llama2-70B']['about'] = 'Open Source model from Meta.'
+
         benchmark['gpt3'] = {}
         benchmark['gpt3']['reading'] = 35
-        benchmark['gpt3']['maths'] = 12.1
-        benchmark['gpt3']['cooding'] = 4.6
+        benchmark['gpt3']['math'] = 12.1
+        benchmark['gpt3']['coding'] = 4.6
+        benchmark['gpt3']['general knowledge'] = 34.3
+        benchmark['gpt3']['about'] = 'First strong general LLM from OpenAI from 2020.'
 
         // gpt3.5-turbo-0301
         benchmark['gpt3.5-turbo'] = {}
         benchmark['gpt3.5-turbo']['reading'] = 81.4
-        benchmark['gpt3.5-turbo']['maths'] = 78
+        benchmark['gpt3.5-turbo']['math'] = 78
         benchmark['gpt3.5-turbo']['coding'] = 82.5
+        benchmark['gpt3.5-turbo']['general knowledge'] = 66.6
+        benchmark['gpt3.5-turbo']['about'] = 'Model currently powering ChatGPT from OpenAI.'
 
         // gpt-4-0613
         benchmark['gpt4'] = {}
         benchmark['gpt4']['reading'] = 90.8
-        benchmark['gpt4']['maths'] = 92
+        benchmark['gpt4']['math'] = 92
         benchmark['gpt4']['coding'] = 85.7
+        benchmark['gpt4']['general knowledge'] = 83.7 
+        benchmark['gpt4']['about'] = 'Most advanced model from OpenAI.'
 
         benchmark['gemini ultra'] = {}
         benchmark['gemini ultra']['reading'] = 90.0
-        benchmark['gemini ultra']['maths'] = 94.4
+        benchmark['gemini ultra']['math'] = 94.4
         benchmark['gemini ultra']['coding'] = 75
+        benchmark['gemini ultra']['general knowledge'] = 90
+        benchmark['gemini ultra']['about'] = 'Most advanced model from Google.'
 
         benchmark['gemini Pro'] = {}
         benchmark['gemini Pro']['reading'] = 80.0
-        benchmark['gemini Pro']['maths'] = 86.5
+        benchmark['gemini Pro']['math'] = 86.5
         benchmark['gemini Pro']['coding'] = 70
+        benchmark['gemini Pro']['general knowledge'] = 79
+        benchmark['gemini Pro']['about'] = 'Advanced model from Google, powering Bard/Gemini.'
 
         benchmark['gemini nano'] = {}
         benchmark['gemini nano']['reading'] = 40
-        benchmark['gemini nano']['maths'] = 23
+        benchmark['gemini nano']['math'] = 23
         benchmark['gemini nano']['coding'] = 27
+        benchmark['gemini nano']['general knowledge'] = 55.8
+        benchmark['gemini nano']['about'] = 'A smaller Gemini, designed for smartphones.'
 
-    // overall_score['grade_school_maths_section'] = [0,0,0,0,0,0,1,0,1,1]
-    // overall_score['high_school_reading_section'] = [1,1,1,1,1,1,0,0,0]
-    // overall_score['coding_section'] = [1,0,0,1,1,1]
+    overall_score['grade_school_maths_section'] = [0,0,0,0,0,0,1,0,1,1]
+    overall_score['high_school_reading_section'] = [1,1,1,1,1,1,0,0,0]
+    overall_score['general_knowledge_section'] = [1,1,1,1,1,1,0,1,1,1,1,1,0,0]
+    overall_score['coding_section'] = [1,0,0,1,1,1]
 
-    // show_results()
+    show_results()
+
     </script>
 
 
