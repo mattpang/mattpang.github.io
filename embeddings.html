@@ -14,7 +14,9 @@
   opacity: 0.2;
 }
 
-
+.vector {
+    font-family: 'Courier New', Courier, monospace;
+}
 
 </style>
     
@@ -33,7 +35,7 @@
     <section id="demos" class="invisible">
       <p>This demo calculates the embedding of the two piece of input text and measure their topic similarity. Each embedding is a vector of 100 elements.</p>
       <p>We are using an embedding model called "Universal Sentence Encoder". It is small enough to run on the browser, but it doesn't underestand very much and is terrible. But you get the idea.</p>
-      <p>Cosine similarity ranges from -1 to 1, with a higher number meaning the two texts' topics are more similar.</p>
+      <p>Cosine similarity ranges from -1 to 1, with an absolute higher number meaning the two texts' topics are more similar.</p>
       <p><em>Note: Two sentence of the same topic but with opposite meaning will have high similarity score, while two sentence of unrelated topics will have low similarity score.</em></p>
 
         <div class="grid">
@@ -43,15 +45,15 @@
         </div>
 
         <details>
-            <summary> View Vectors (not normalise)</summary>
+            <summary> View Vectors (Normalised and rounded)</summary>
             <div class="grid">
-                <pre id ='embed_result1'></pre>
-                <pre id ='embed_result2'></pre>
+                <div class="vector" id ='embed_result1'></div>
+                <div class="vector" id ='embed_result2'></div>
             </div>
         </details>
 
 
-<p><b>Similarity:</b></p>
+    <p><b>Similarity:</b></p>
       <!-- inner product: <p id="innerproduct"></p> -->
       Cosine distance: <p id="cosine"></p>
     </section>
