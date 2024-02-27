@@ -55,7 +55,7 @@
 
                     <textarea id="maths_user" placeholder="Your answer..."></textarea>
 
-                    <button onclick="eval_maths();sleep(1500).then(d=>{next_q('grade_school_maths_section','high_school_reading_section')})">Next</button>
+                    <button id='math_button' onclick="eval_maths();sleep(1000).then(d=>{next_q('grade_school_maths_section','high_school_reading_section')})">Next</button>
                 </div>
 
                 <footer>
@@ -81,7 +81,7 @@
                 <article id="reading_questions">
 
                 </article>
-                <button onclick="eval_reading();sleep(1500).then(d=>{next_q('high_school_reading_section','general_knowledge_section')})">Next</button>
+                <button id='reading_button' onclick="eval_reading();sleep(1000).then(d=>{next_q('high_school_reading_section','general_knowledge_section')})">Next</button>
 
             </article>
 
@@ -99,7 +99,7 @@
 
                 </article>
                 <p id="general_knowledge_answer"></p>
-                <button onclick="eval_general_knowledge();sleep(1500).then(d=>{next_q('general_knowledge_section','coding_section')})">Next</button>
+                <button id='general_knowledge_button' onclick="eval_general_knowledge();sleep(1000).then(d=>{next_q('general_knowledge_section','coding_section')})">Next</button>
 
             </article>
 
@@ -262,6 +262,8 @@ ${code}
 
     function populate_maths(d){
         // clear any old inputs 
+        document.getElementById('math_button').removeAttribute('disabled')
+
         document.getElementById('maths_user').value=''
         q = d['grade_school_maths'][order[question_index['grade_school_maths_section']]]
         document.getElementById('maths_section').innerText = `Question ${1+question_index['grade_school_maths_section']}/${max_questions}`
@@ -270,6 +272,7 @@ ${code}
     }
 
     function populate_reading(d){
+        document.getElementById('reading_button').removeAttribute('disabled')
         q = d['high_school_reading'][order[question_index['high_school_reading_section']]]
         document.getElementById('reading_section').innerText = `Question ${1+question_index['high_school_reading_section']}/${max_questions}`
         document.getElementById('reading_article').innerText = q['article']
@@ -308,6 +311,8 @@ ${code}
     }
 
     function populate_general_knowledge(d){
+        document.getElementById('general_knowledge_button').removeAttribute('disabled')
+
         document.getElementById('general_knowledge_answer').innerText=''
         q = d['general_knowledge'][order[question_index['general_knowledge_section']]]
         document.getElementById('knowledge_section').innerText = `Question ${1+question_index['general_knowledge_section']}/${max_questions*gk_factor}`
@@ -386,6 +391,9 @@ ${code}
     }
 
     function eval_maths(){
+        // set this button to bs disabled when pressed.
+        document.getElementById('math_button').setAttribute('disabled',true)
+
         correct_ans = dataset['grade_school_maths'][order[question_index['grade_school_maths_section']-1]]['answer']
         // remove all non numeric from text
         u_input = document.getElementById('maths_user').value
@@ -401,6 +409,9 @@ ${code}
 
     function eval_reading(){
         
+        // set this button to bs disabled when pressed.
+        document.getElementById('reading_button').setAttribute('disabled',true)
+
         console.log(question_index['high_school_reading_section'])
         correct_ans = dataset['high_school_reading'][order[question_index['high_school_reading_section']-1]]['answers']
         console.log(correct_ans)
@@ -426,7 +437,6 @@ ${code}
         score = score/correct_ans.length
         console.log(score)
         overall_score['high_school_reading_section'].push(score)
-
 
     }
 
