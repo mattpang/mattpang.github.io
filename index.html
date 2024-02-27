@@ -226,7 +226,7 @@ ${code}
     }
 
     let dataset
-    let max_questions = 5
+    let max_questions = 1
     let gk_factor = 3
     let q_count = 100
     let order = Array.from({ length: q_count-1 }, (value, index) => index)// storing a shuffled set (1..q_count)
@@ -442,6 +442,8 @@ ${code}
 
 
     function eval_general_knowledge(){
+        document.getElementById('general_knowledge_button').setAttribute('disabled',true)
+
         // console.log(question_index['general_knowledge_section'])
         correct_ans = dataset['general_knowledge'][order[question_index['general_knowledge_section']-1]]['target']
         
