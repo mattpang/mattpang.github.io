@@ -96,7 +96,7 @@
             // let sounds = [] 
             for (p of document.querySelectorAll('input:checked')){
                 let topic = p.id.replaceAll(' ','_')
-                afile = `/audio/${topic}.mp3`
+                afile = `audio/${topic}.mp3`
                 sounds.push(new Audio(afile))
             }
             console.log(sounds)
