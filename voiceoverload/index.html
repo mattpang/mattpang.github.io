@@ -5,6 +5,7 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+        <script src="https://unpkg.com/typeit@8.7.1/dist/index.umd.js"></script>
 
         <style>
 
@@ -56,6 +57,12 @@
                 display: block;
                 margin-left:50%
             }
+
+            #subtitle{
+                height: 50px;
+                color: white;
+                font-size: larger;
+            }
         </style>
 
     </head>
@@ -66,9 +73,13 @@
         <br>
         <button class="play_button" onclick="start()">Play</button>
 
+        <p id="subtitle"></p>
+
     </body>
 
     <script>
+        let content = {}
+
         fetch('words.json').then(d=>d.json()).then(data=>{
             console.log(data)
             choices = document.getElementById('choices')
@@ -86,6 +97,8 @@
                 choices.appendChild(myin)
                 choices.appendChild(label)
 
+                content[row['topic']] = row['content']
+
             }
         })
         
@@ -95,10 +108,14 @@
             // get all checkmarked inputs
             // let sounds = [] 
             let checked = document.querySelectorAll('input:checked')
+            let this_content = {}
+            let i = 0 
             for (p of checked){
                 let topic = p.id.replaceAll(' ','_')
                 afile = `audio/${topic}.mp3`
                 sounds.push(new Audio(afile))
+                this_content[i] = content[p.id]
+                i+=1
             }
             console.log(sounds)
             var currentIndex = 0; // keep track of the current index
@@ -110,12 +127,23 @@
                 currentIndex = (currentIndex + 1)
                 if (currentIndex<checked.length){
                     sounds[currentIndex].play(); // play the next sound
+                    document.getElementById('subtitle').innerText = ''
+                    new TypeIt("#subtitle", {
+                    speed: 15,
+                    }).type(this_content[currentIndex]).go()
+
                 }
             }
             
             sounds[0].currentTime = 0 
             sounds[0].play.bind(sounds[0]);
             sounds[0].play()
+            console.log(this_content[currentIndex])
+
+            new TypeIt("#subtitle", {
+                    speed: 15,
+                }).type(this_content[currentIndex]).go()
+
         }
     </script>
 
