@@ -94,7 +94,8 @@
         function start(){
             // get all checkmarked inputs
             // let sounds = [] 
-            for (p of document.querySelectorAll('input:checked')){
+            let checked = document.querySelectorAll('input:checked')
+            for (p of checked){
                 let topic = p.id.replaceAll(' ','_')
                 afile = `audio/${topic}.mp3`
                 sounds.push(new Audio(afile))
@@ -106,12 +107,17 @@
             });
 
             function onended(evt) {
-            currentIndex = (currentIndex + 1) % sounds.length; // increment our index
-            sounds[currentIndex].play(); // play the next sound
+                currentIndex = (currentIndex + 1)
+                if (currentIndex<checked.length){
+                    sounds[currentIndex].play(); // play the next sound
+                }
             }
             
+            sounds[0].currentTime = 0 
             sounds[0].play.bind(sounds[0]);
-
+            sounds[0].play()
         }
     </script>
+
+
 </html>
