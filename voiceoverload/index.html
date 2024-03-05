@@ -1,0 +1,117 @@
+<html>
+    <head>
+        <title>Tomoro-cast mockup</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+
+        <style>
+
+            html,body{
+                margin: 0;
+                padding: 0;
+                border: 0;
+                font-size: 100%;
+            }
+
+            body{
+                background: #041827;
+            }
+
+            label{
+                padding: 10px;
+                background-color: aqua;
+                border-radius: 15px;
+                background: #E0E0E0;
+                border-radius: 12.5px;
+
+                font-family: 'Space Grotesk';
+                font-style: normal;
+                font-weight: 400;
+                font-size: 12px;
+                line-height: 15px;
+                text-align: center;
+                color: #1E1E1E;
+                margin: 10px;
+            }
+
+            input[type=checkbox]{
+                display: none;
+            }
+
+            input:checked+label{
+                background-color: #D8FF00;
+                /* color: white; */
+            }
+
+            #choices{
+                padding-top: 100px;
+                padding-left: 100px;
+            }
+
+            .play_button{
+                height: 100px;
+                width: 100px;
+                display: block;
+                margin-left:50%
+            }
+        </style>
+
+    </head>
+    <body>
+        <div id="choices">
+
+        </div>
+        <br>
+        <button class="play_button" onclick="start()">Play</button>
+
+    </body>
+
+    <script>
+        fetch('words.json').then(d=>d.json()).then(data=>{
+            console.log(data)
+            choices = document.getElementById('choices')
+            for (row of data){
+                console.log(row['topic'])
+                // populate choices div with radio buttons
+                // <input type="checkbox" checked="checked" value="Bike"> I have a bike<br>
+                let myin = document.createElement('input')
+                let label = document.createElement('label')
+                label.setAttribute('for',row['topic'])
+                label.innerText=row['topic']
+                myin.type = 'checkbox'
+                myin.id = row['topic']
+                myin.value = row['topic']
+                choices.appendChild(myin)
+                choices.appendChild(label)
+
+            }
+        })
+        
+        let sounds = []
+
+        function start(){
+            // get all checkmarked inputs
+            // let sounds = [] 
+            for (p of document.querySelectorAll('input:checked')){
+                let topic = p.id.replaceAll(' ','_')
+                afile = `/audio/${topic}.mp3`
+                sounds.push(new Audio(afile))
+            }
+            console.log(sounds)
+            var currentIndex = 0; // keep track of the current index
+            sounds.forEach(function(sound) {
+            sound.onended = onended; // add the same event listener for all audios in our array
+            });
+
+            function onended(evt) {
+            currentIndex = (currentIndex + 1) % sounds.length; // increment our index
+            sounds[currentIndex].play(); // play the next sound
+            }
+            
+            sounds[0].play.bind(sounds[0]);
+
+        }
+    </script>
+</html>
