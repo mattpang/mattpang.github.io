@@ -1,45 +1,96 @@
 <html>
     <head>
-        <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
+        <!-- <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script> -->
         <link
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
       />
 
+      <style>
+        details>details{
+            padding-left: 50px;
+            border-left: 0.1rem solid #DFFD52;
+        }
+
+        .thoughts {
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        /* details>details>*{
+            color:red;
+        } */
+        .overlay{
+            /* filter: invert(0.00) sepia(1.0) hue-rotate(25deg) saturate(600%); */
+            /* mix-blend-mode: multiply; */
+            filter:  invert(92%) sepia(100%) saturate(538%) hue-rotate(14deg) brightness(104%) contrast(98%);
+            /* sepia(100%) saturate(538%) hue-rotate(14deg) brightness(104%) contrast(98%); */
+            /* border-radius: 50%; */
+
+        }
+
+        img {
+            border-radius: 25%;
+        }
+
+        .caption{
+            padding:30px;
+            mix-blend-mode:multiply;
+            filter:invert(1);
+            /* background-color: lime; */
+            /* margin:20px; */
+
+        }
+
+      </style>
     </head>
 
 <body>
 
     <main class="container">
         <article>
-<p class="system_prompt">
-    You are a marketing analysis system. The user will ask you a question related a topic. Please think slowly through your thought process, listing them out as bulleted points. Think of the data sources you will require and what to do with each. Explain each step and reasoning behind it before giving an answer. 
+<p class="system_prompt" style="display:none;">
+    <kbd>
+        You are a marketing analysis system. The user will ask you a question related a topic. Please think slowly through your thought process, listing them out as bulleted points. Think of the data sources you will require and what to do with each. Explain each step and reasoning behind it before giving an answer. 
+    </kbd>
 </p>
             <p class="user_prompt">
-Which is going to be a strong contender for a high selling gadget in the young professionals segment this Christmas?
+<kbd>
+    Which is going to be a strong contender for a high selling gadget in the young professionals segment this Christmas?
+</kbd`>
             </p>
 <details>
 
 <summary>
 Thought process</summary>
 
-<details>
+<details class="thoughts">
     To analyze and determine a strong contender for a high-selling gadget among young professionals this Christmas, I would undertake the following thought process and steps:
 
 <summary>
     Identify Key Characteristics of the Target Segment (Young Professionals)
 </summary>
-    - Understand the demographic: Young professionals are typically aged between 22-35, early in their careers, tech-savvy, and likely to have disposable income.
-    - Consider their interests and lifestyle: Gadgets that enhance productivity, connectivity, health, or leisure are likely appealing.
+<ul>
+<li>
+    Understand the demographic: Young professionals are typically aged between 22-35, early in their careers, tech-savvy, and likely to have disposable income.
+</li>
+    <li>
+    Consider their interests and lifestyle: Gadgets that enhance productivity, connectivity, health, or leisure are likely appealing.
+    </li>
+</ul>
 </details>
 
 <details>
     <summary>
         Review Current Market Trends
     </summary>
-
-    - **Technology and Gadget Trends**: Look at recent product launches, technology advancements, and trends in consumer electronics such as smartphones, smartwatches, fitness trackers, and portable tech.
-    - **Consumer Behavior Trends**: How have purchasing behaviors changed post-pandemic? Is there an increased interest in certain types of gadgets?
+<ul>
+    <li>
+        Technology and Gadget Trends: Look at recent product launches, technology advancements, and trends in consumer electronics such as smartphones, smartwatches, fitness trackers, and portable tech.
+    </li>
+    <li>
+        Consumer Behavior Trends: How have purchasing behaviors changed post-pandemic? Is there an increased interest in certain types of gadgets?
+    </li>
+</ul>
 </details>
 
 
@@ -56,8 +107,15 @@ Thought process</summary>
     <summary>
     Consider New and Upcoming Product Releases
 </summary>
-   - Identify any highly anticipated gadgets set to be released before Christmas. These could be new models or significant updates to existing popular devices.
-   - Evaluate the buzz around these products in tech blogs, social media, and professional reviews.
+<ul>
+    <li>
+        Identify any highly anticipated gadgets set to be released before Christmas. These could be new models or significant updates to existing popular devices.
+    </li>
+    <li>
+        Evaluate the buzz around these products in tech blogs, social media, and professional reviews.
+    </li>
+</ul>
+
 </details>
 
 
@@ -102,20 +160,56 @@ Synthesize Information to Identify Potential High-Sellers
 
 </details>
 
-<p>
-    <b>
-        Smart Wearables: 
-    </b>
-    Given the growing focus on health and fitness, coupled with the convenience of connectivity, smartwatches and fitness trackers are likely to be highly popular. Devices like the latest models of the Apple Watch or Fitbit, which combine health monitoring, fitness tracking, and smartphone connectivity, are particularly appealing to young professionals who value both style and functionality.
-</p>
 
-**Wireless Earbuds**: With remote work still prevalent and multimedia consumption on the rise, high-quality wireless earbuds are also a strong contender. Products like Apple AirPods Pro, Samsung Galaxy Buds, and Google Pixel Buds offer features such as active noise cancellation, seamless integration with devices, and high-quality sound, making them attractive for young professionals on the go.
+<div class="grid">
 
-**Portable Power Banks and Chargers**: As young professionals use multiple gadgets daily, the need for convenient, fast charging solutions grows. High-capacity, fast-charging portable power banks, particularly those that offer wireless charging capabilities, are likely to be in high demand.
+    <div>
+
+        <p>
+            <b>
+                Smart Wearables: 
+            </b>
+            <br>
+            <div class="overlay">
+                <img class="caption" src="/imgs/wearables.jpg">
+            </div>
+                Given the growing focus on health and fitness, coupled with the convenience of connectivity, smartwatches and fitness trackers are likely to be highly popular. Devices like the latest models of the Apple Watch or Fitbit, which combine health monitoring, fitness tracking, and smartphone connectivity, are particularly appealing to young professionals who value both style and functionality.
+        </p>
+    </div>
+
+<div>
+    <p>   
+        <b>
+            Wireless Earbuds
+        </b>
+        <br>
+        
+        <div class="overlay">
+        <img class="caption" src="/imgs/earbugs.jpg">
+        </div>
+        With remote work still prevalent and multimedia consumption on the rise, high-quality wireless earbuds are also a strong contender. Products like Apple AirPods Pro, Samsung Galaxy Buds, and Google Pixel Buds offer features such as active noise cancellation, seamless integration with devices, and high-quality sound, making them attractive for young professionals on the go.
+    </p>
+</div>
+    <div>
+
+        <p>
+            
+            <b>
+                Portable Power Banks and Chargers
+            </b>
+            <br>
+
+            <div class="overlay">
+                <img class="caption" src="/imgs/battery.jpeg">
+            </div>
+            As young professionals use multiple gadgets daily, the need for convenient, fast charging solutions grows. High-capacity, fast-charging portable power banks, particularly those that offer wireless charging capabilities, are likely to be in high demand.
+        </p>
+    </div>
+        
+
+</div>
 
 These predictions are based on the increasing utility, popularity, and technological advancements in these categories, making them safe bets for high-selling gadgets this Christmas among young professionals.
-
-            quickly show some reasoning usecase. Want to visualise chain of thought. 
 
 
 
