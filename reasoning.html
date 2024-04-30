@@ -10,7 +10,8 @@
       />
       
       <script src="https://code.highcharts.com/highcharts.js"></script>
-      
+      <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
       <style>
         details>details{
             padding-left: 50px;
@@ -70,8 +71,8 @@
 </kbd`>
             </p>
 
-
-<details>
+<div id="progress" aria-busy="true"></div>
+<details id="my_details">
 
 <summary>
 Thought process</summary>
@@ -107,7 +108,7 @@ Thought process</summary>
 </details>
 
 
-<details open>
+<details>
     <summary>
     Analyze Previous Sales Data
     </summary>
@@ -118,12 +119,7 @@ Thought process</summary>
         <li>
             Identify patterns or shifts in gadget preferences over recent years.
         </li>
-        <li>
-            Look at forecast sales data [2]:
-            <br>
-            <br>
-            <div id="container" class=".highcharts-dark"></div>
-        </li>
+        
     </ul>
     <hr />
 
@@ -152,7 +148,18 @@ Thought process</summary>
 <ul>
     <li>
         Identify any highly anticipated gadgets set to be released before Christmas. These could be new models or significant updates to existing popular devices.
-    </li>
+        <p>Here's web results for upcoming smart watch models:</p>
+        <pre>
+Several exciting smartwatches are expected to hit the market later this year, making them strong contenders for high sales among young professionals this Christmas.
+
+1.	Apple Watch Ultra 3: Scheduled for a September release, this watch is rumored to potentially include a new case color and possibly a MicroLED display, which would enhance its visibility and overall aesthetic appeal .
+2.	Google Pixel Watch 3: Expected in October, the Pixel Watch 3 might offer two case sizes and could be one of the first to feature Wear OS 5, suggesting improvements in interface and app functionality .
+3.	Samsung Galaxy Watch 7: This series is anticipated to launch in July to align with the Paris 2024 Olympic Games. It may feature advanced health insights like a new vitality score and improved sleep tracking, and is rumored to include a significant upgrade in Samsung Health. The Galaxy Watch 7 will likely debut with Wear OS 5, providing a fresh software experience  .
+4.	Fitbit Charge 7: Expected to retain its curved design and come in multiple colors, this device is rumored to include continuous electrodermal activity sensors for blood pressure and health monitoring, making it a great choice for health-conscious professionals .
+
+Each of these models focuses on health and productivity features, appealing directly to the lifestyle needs of young professionals. With these anticipated releases, it’s clear that leading brands are pushing the envelope on what smartwatches can do, potentially making any of these models a hit this holiday season.
+        </pre>
+</li>
     <li>
         Evaluate the buzz around these products in tech blogs, social media, and professional reviews.
     </li>
@@ -190,6 +197,13 @@ Evaluate Marketing and Promotional Strategies
         <b>
             Expert Opinions and Forecasts
         </b>: Consult technology and market analysis reports from research firms like Gartner, IDC, or consumer electronics shows (CES) insights.
+    
+            Look at forecast sales data [1]:
+            <br>
+            <br>
+            <div id="container" class=".highcharts-dark"></div>
+
+
     </li>
         <li>
             <b>
@@ -197,6 +211,19 @@ Evaluate Marketing and Promotional Strategies
             </b>: Gauge public sentiment and interest levels in different gadgets.
         </li>
 </ul>
+
+<p>
+    <h5>
+        Sources:
+    </h5>
+</p>
+    
+<p>
+    [1] <a href="https://www.grandviewresearch.com/industry-analysis/wearable-technology-market">GVR Research</a>
+</p>
+
+
+
 </details>
 
 
@@ -291,7 +318,7 @@ These predictions are based on the increasing utility, popularity, and technolog
 <script>
 fetch('data/wearables.json').then(d=>d.json()).then(d=>{
 
-    console.log(d)
+    // console.log(d)
 
 let hg = Highcharts.chart('container', {
   colors: ["#A9CF54", "#C23C2A", "#FFFFFF", "#979797", "#FBB829"],
@@ -373,6 +400,34 @@ let hg = Highcharts.chart('container', {
 
 
 })
+
+</script>
+
+<script>
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// document.onload = run_demo;
+
+function run_demo(){
+    // document.getElementById('progress').style.display = 'block'        
+    document.getElementById('my_details').style.display = 'none'
+    // document.getElementById('progress').style.backgroundColor = 'red'
+    // console.log('in run_demo')
+
+    sleep(2000).then(() => { 
+        document.getElementById('progress').style.display = 'none'
+        // console.log('slept 2.5s')
+        // document.getElementById('progress').style.backgroundColor = 'red'
+        document.getElementById('my_details').style.display = 'block'
+        // console.log('World!');
+     });
+}
+// console.log('in main')
+// setTimeout(run_demo, 1000);
+run_demo()
 
 </script>
 
