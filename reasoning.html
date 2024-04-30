@@ -53,6 +53,10 @@
             padding-left:20px;
         }
 
+        #my_results { 
+            visibility: hidden;
+        }
+
       </style>
     </head>
 
@@ -74,8 +78,7 @@
 <div id="progress" aria-busy="true"></div>
 <details id="my_details">
 
-<summary>
-Thought process</summary>
+<summary>Expand to view thought process</summary>
 
 <details>
     To analyze and determine a strong contender for a high-selling gadget among young professionals this Christmas, I would undertake the following thought process and steps:
@@ -257,8 +260,10 @@ Synthesize Information to Identify Potential High-Sellers
 
 </details>
 
+<div id="my_results">
 
-<div class="grid">
+
+<div class="grid" >
 
     <div>
 
@@ -308,7 +313,7 @@ Synthesize Information to Identify Potential High-Sellers
 
 These predictions are based on the increasing utility, popularity, and technological advancements in these categories, making them safe bets for high-selling gadgets this Christmas among young professionals.
 
-
+</div>
 
 </article> 
     </main>
@@ -417,12 +422,14 @@ function run_demo(){
     // document.getElementById('progress').style.backgroundColor = 'red'
     // console.log('in run_demo')
 
-    sleep(2000).then(() => { 
+    sleep(1500).then(() => { 
         document.getElementById('progress').style.display = 'none'
+        document.getElementById('my_details').style.display = 'block'
         // console.log('slept 2.5s')
         // document.getElementById('progress').style.backgroundColor = 'red'
-        document.getElementById('my_details').style.display = 'block'
         // console.log('World!');
+        document.getElementById('my_results').style.visibility = 'visible'
+
      });
 }
 // console.log('in main')
