@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Starship lander</title>
+		<style>
+			body { margin: 0; }
+		</style>
+
+<script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@latest/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@latest/examples/jsm/"
+      }
+    }
+  </script>
+
+
+	</head>
+	<body>
+<div id = 'container'></div>
+
+	</body>
+
+<script type="module">
+import * as THREE from 'three';    
+import Stats from 'three/addons/libs/stats.module.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+
+
+const scene = new THREE.Scene();
+
+
+const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize( window.innerWidth, window.innerHeight );
+
+const pmremGenerator = new THREE.PMREMGenerator( renderer );
+scene.background = new THREE.Color( 0xb7fdfe );
+scene.environment = pmremGenerator.fromScene( new RoomEnvironment( renderer ), 0.04 ).texture;
+
+const stats = new Stats();
+document.getElementById('container')
+container.appendChild( stats.dom );
+
+document.body.appendChild( renderer.domElement );
+
+const controls = new OrbitControls( camera, renderer.domElement );
+
+// access the bottom of the star ship. 24 for bottom 33 for mid
+controls.target = new THREE.Vector3(0,-33,0)
+
+const amblight = new THREE.AmbientLight( 0xFFFFFF, 1 ); // soft white light
+scene.add( amblight );
+
+
+const light = new THREE.HemisphereLight( 0xffffFF, 0xffffFF, 1 );
+scene.add( light );
+
+
+// camera.position.x = 47;
+// camera.position.y = 25;
+// camera.position.z = 0;
+
+// camera.rotation.x = -1.45;
+// camera.rotation.y = 1.4;
+// camera.rotation.z = 1.45;
+
+camera.position.x = -20;
+camera.position.y = 200;
+camera.position.z = 150;
+
+camera.rotation.x = 0;
+camera.rotation.y = 0;
+camera.rotation.z = 0;
+
+
+const gui = new GUI();
+// gui.close();
+
+const loader = new GLTFLoader();
+let ship 
+let flames 
+loader.load( '/sn24bn7.glb', function ( gltf ) {
+    ship = gltf.scene
+    
+    ship.position.set(0,-33,0)
+    
+    ship.children[0].visible = false
+    ship.children[2].visible = true
+    ship.children[2].material.color = new THREE.Color( 0xD7263D )
+    scene.add( ship );
+    console.log(ship)
+    gui.add( ship.children[0], 'visible').listen();
+    gui.add( ship.position, 'x' ).listen();
+    gui.add( ship.position, 'y' ).listen();
+    gui.add( ship.rotation, 'z', -3.14, 3.14, 0.01 ).listen();
+    gui.add( ship.children[2].material, 'opacity', 0,1, 0.01 ).listen();
+    gui.add( ship.children[2].rotation, 'z', -3.14, 3.14, 0.01 ).listen();
+    gui.add( ship.children[2].scale, 'y', 0, 2, 0.01 ).listen();
+
+    fetch('traj.json').then(d=>d.json()).then(d=>{
+    traj = d;
+    renderer.setAnimationLoop( animate );
+})
+
+}, undefined, function ( error ) {
+
+console.error( error );
+
+} );
+
+
+
+
+gui.add( camera.position, 'x' ).listen();
+gui.add( camera.position, 'y').listen();
+gui.add( camera.position, 'z' ).listen();
+
+gui.add( camera.rotation, 'x', -3.14, 3.14, 0.01 ).listen();
+gui.add( camera.rotation, 'y', -3.14, 3.14, 0.01 ).listen();
+gui.add( camera.rotation, 'z', -3.14, 3.14, 0.01 ).listen();
+
+const geometry = new THREE.BoxGeometry( 100,  0.001,100 );
+const material = new THREE.MeshBasicMaterial( { color: 0x2b9720 } );
+const groundplane = new THREE.Mesh( geometry, material );
+groundplane.position.y = -8.6
+scene.add(groundplane)
+gui.add( groundplane.position , 'y', -20, 20, 0.01 ).listen();
+
+// # x[0] = x position (m)
+// # x[1] = x velocity (m/)
+// # x[2] = y position (m)
+// # x[3] = y velocity (m/s)
+// # x[4] = angle (rad)
+// # x[5] = angular velocity (rad/s)
+// u[6] = thrust %
+// u[7] = thrust angle
+
+let traj
+
+let zrot = 0 
+let i = 0
+function animate() {
+    
+    // console.log(camera)
+	renderer.render( scene, camera );
+    stats.update()
+
+    try {
+        ship.rotation.z = zrot
+        ship.position.x = traj[i][0]
+        ship.position.y = traj[i][2]
+        ship.rotation.z = -traj[i][4]
+        camera.position.y = ship.position.y
+        ship.children[2].material.transparent = true
+        ship.children[2].material.opacity = traj[i][6];
+        ship.children[2].scale.y = traj[i][6]/2
+        ship.children[2].rotation.z = -traj[i][7]
+
+    } catch (error) {
+            
+        }
+    if (i>=400){
+        ship.children[2].visible=false
+    }
+    i++;
+}
+
+
+
+
+
+
+
+
+</script>
+
+</html>
