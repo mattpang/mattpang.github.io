@@ -1,0 +1,481 @@
+<html>
+    <head>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.20.0/matter.min.js" integrity="sha512-6+7rTBmR6pRFe9fa0vCFjFaHZj/XYa7774bEBzRtxgdpIJOS++R3cKd6Prg/eJmxtsJotd8KAg4g57uuVQsZKA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/matter-attractors@0.1.6/build/matter-attractors.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js" integrity="sha512-aNMyYYxdIxIaot0Y1/PLuEu3eipGCmsEUBrUq+7aVyPGMFH8z0eTP0tkqAvv34fzN6z+201d3T8HPb1svWSKHQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<style>
+body,canvas {
+    margin: 0;
+    padding: 0;
+    border: none;
+ }
+    body{
+        background-color: #031926;
+        font-family: Arial, Helvetica, sans-serif;
+        color: white;
+    }
+
+    #bubbles {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        border-style: none;
+    }
+    .bubble {
+        position: absolute;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        overflow: hidden;
+        font-weight: bold;
+    }
+    canvas{
+        border-style: none;
+    }
+    
+
+
+    /* The Modal (background) */
+    .modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    -webkit-animation-name: fadeIn; /* Fade in the background */
+    -webkit-animation-duration: 0.4s;
+    animation-name: fadeIn;
+    animation-duration: 0.4s
+    }
+
+    /* Modal Content */
+    .modal-content {
+    position: fixed;
+    bottom: 0;
+    background-color: #031926;
+    width: 80%;
+    left:10%;
+    margin: auto;
+    height: 80%;
+    -webkit-animation-name: slideIn;
+    -webkit-animation-duration: 0.4s;
+    animation-name: slideIn;
+    animation-duration: 0.4s
+    }
+
+    /* The Close Button */
+    .close {
+    color: white;
+    float: right;
+    font-size: 48px;
+    font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+    }
+
+    .modal-header {
+    padding: 2px 16px;
+    background-color: #005f73;
+    color: white;
+    padding-left:50px;
+    }
+
+    .modal-body {
+        padding: 2px 16px;
+        margin: 50px;
+    }
+
+    .modal-footer {
+    padding: 2px 16px;
+    background-color: #031926;
+    color: white;
+    }
+
+    /* Add Animation */
+    @-webkit-keyframes slideIn {
+    from {bottom: -300px; opacity: 0} 
+    to {bottom: 0; opacity: 1}
+    }
+
+    @keyframes slideIn {
+    from {bottom: -300px; opacity: 0}
+    to {bottom: 0; opacity: 1}
+    }
+
+    @-webkit-keyframes fadeIn {
+    from {opacity: 0} 
+    to {opacity: 1}
+    }
+
+    @keyframes fadeIn {
+    from {opacity: 0} 
+    to {opacity: 1}
+    }
+
+    .metric_value{
+        font-size: 48pt;
+        color: #588157;
+    }
+
+    .centered{
+        margin-left: 50%;
+    }
+
+    /* HTML: <div class="loader"></div> */
+    .loader {    
+    --r1: 154%;
+    --r2: 68.5%;
+    width: 60px;
+    aspect-ratio: 1;
+    border-radius: 50%; 
+    background:
+        radial-gradient(var(--r1) var(--r2) at top   ,#0000 79.5%,#269af2 80%),
+        radial-gradient(var(--r1) var(--r2) at bottom,#269af2 79.5%,#0000 80%),
+        radial-gradient(var(--r1) var(--r2) at top   ,#0000 79.5%,#269af2 80%),
+        #ccc;
+    background-size: 50.5% 220%;
+    background-position: -100% 0%,0% 0%,100% 0%;
+    background-repeat:no-repeat;
+    animation: l9 2s infinite linear;
+    }
+    @keyframes l9 {
+        33%  {background-position:    0% 33% ,100% 33% ,200% 33% }
+        66%  {background-position: -100%  66%,0%   66% ,100% 66% }
+        100% {background-position:    0% 100%,100% 100%,200% 100%}
+    }
+
+        .metric_container{
+            display: flex;
+        }
+
+        .metric_outer{
+            padding: 10px;
+            margin: 10px;
+            font-size: large;
+        }
+
+        .metric_outer p{
+            line-height: 1.0pt;
+            text-align: center;
+        }
+</style>
+</head>
+
+<body>
+
+
+    <div id="bubbles"></div>
+
+
+    <div id="myModal" class="modal">
+
+        <!-- Modal content -->
+        <div class="modal-content">
+          <div class="modal-header">
+            <span class="close">&times;</span>
+            <h2 id="modal_header">Modal Header</h2>
+          </div>
+          <div id = 'modal_body' class="modal-body">
+            <p>Some text in the Modal Body</p>
+            <p>Some other text...</p>
+          </div>
+          <div class="modal-footer">
+            <h3 id ='modal_header' ></h3>
+          </div>
+        </div>
+      
+      </div>
+
+
+</body>
+
+
+    
+<script>
+    let topic_data
+
+    function choose(choices) {
+    var index = Math.floor(rand() * choices.length);
+    return choices[index];
+    }
+
+    function sfc32(a, b, c, d) {
+  return function() {
+    a |= 0; b |= 0; c |= 0; d |= 0;
+    let t = (a + b | 0) + d | 0;
+    d = d + 1 | 0;
+    a = b ^ b >>> 9;
+    b = c + (c << 3) | 0;
+    c = (c << 21 | c >>> 11);
+    c = c + t | 0;
+    return (t >>> 0) / 4294967296;
+  }
+}
+
+    // JS doesn't have random seeds, so we will make our own generator
+    function cyrb128(str) {
+    let h1 = 1779033703, h2 = 3144134277,
+        h3 = 1013904242, h4 = 2773480762;
+    for (let i = 0, k; i < str.length; i++) {
+        k = str.charCodeAt(i);
+        h1 = h2 ^ Math.imul(h1 ^ k, 597399067);
+        h2 = h3 ^ Math.imul(h2 ^ k, 2869860233);
+        h3 = h4 ^ Math.imul(h3 ^ k, 951274213);
+        h4 = h1 ^ Math.imul(h4 ^ k, 2716044179);
+    }
+    h1 = Math.imul(h3 ^ (h1 >>> 18), 597399067);
+    h2 = Math.imul(h4 ^ (h2 >>> 22), 2869860233);
+    h3 = Math.imul(h1 ^ (h3 >>> 17), 951274213);
+    h4 = Math.imul(h2 ^ (h4 >>> 19), 2716044179);
+    h1 ^= (h2 ^ h3 ^ h4), h2 ^= h1, h3 ^= h1, h4 ^= h1;
+    return [h1>>>0, h2>>>0, h3>>>0, h4>>>0];
+}
+// change this seed to something else for another random case
+var seed = 1337 ^ 0xDEADBEEF; // 32-bit seed with optional XOR value
+// Pad seed with Phi, Pi and E.
+// https://en.wikipedia.org/wiki/Nothing-up-my-sleeve_number
+var rand = sfc32(0x9E3779B9, 0x243F6A88, 0xB7E15162, seed);
+for (var i = 0; i < 15; i++) rand();
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
+
+    async function popup(e){
+
+        modal.style.display = "block";
+        // show just a loader for a second, then the rest
+        mbody = document.getElementById('modal_body')
+        mbody.innerHTML = `<div class="centered loader"></div>`
+        await sleep(550).then(d=>{show_content(e)})
+        
+    }
+
+
+    function show_content(e){
+
+        let topic = e.target.innerText
+        document.getElementById('modal_header').innerText = e.target.innerText
+        // console.log(e.target.innerText)
+        mbody = document.getElementById('modal_body')
+        mbody.innerHTML = ''
+        ptag = document.createElement('p')
+        ptag.innerText = topic_data[topic].blurb
+        console.log(topic_data[topic].blurb)
+        mbody.appendChild(ptag)
+
+        metric_container = document.createElement('div')
+        metric_container.className = 'metric_container'
+        mbody.appendChild(metric_container)
+
+        let mcount = 0
+        for (metric of topic_data[topic].infographic){
+            mstats = document.createElement('div')
+            mstats.className='metric_outer'
+            mstats.id = 'metric_'+mcount
+            mstats.innerText+=metric.term+' '
+            stat = document.createElement('p')
+            stat.innerText=metric.value
+            stat.className = 'metric_value'
+            mstats.appendChild(stat)
+            metric_container.appendChild(mstats)
+
+            p = anime({
+            targets: "#metric_"+mcount+"> p",
+            innerText: [0, metric.value],
+            round: 1,
+            easing: 'easeInOutExpo',
+            duration:2000,
+            });
+
+            console.log(p)
+            mcount+=1
+        }
+    }
+
+    function render_bubbles(topics){
+
+        const bubbleBox = document.getElementById('bubbles');
+                
+        palettes = ['#468189','#77ACA2','#9DBEBB','#588157','#f4acb7']
+
+        var Engine = Matter.Engine,
+        Render = Matter.Render,
+        Runner = Matter.Runner,
+        Composites = Matter.Composites,
+        World = Matter.World,
+        Common = Matter.Common,
+        MouseConstraint = Matter.MouseConstraint,
+        Mouse = Matter.Mouse,
+        Composite = Matter.Composite,
+        Bodies = Matter.Bodies,
+        Constraint = Matter.Constraint;
+        Matter.use(MatterAttractors);
+
+
+        // create an engine
+        const engine = Engine.create();
+        engine.gravity.y = 0.0;
+        engine.gravity.x = 0;
+
+        // create a renderer
+        const render = Render.create({
+            element: bubbleBox,
+            engine: engine,
+            options: {
+                width: bubbleBox.offsetWidth,
+                height: bubbleBox.offsetHeight,
+                wireframes: false,
+                background: 'transparent',
+                }
+        });
+
+        Render.run(render);
+
+        // create runner
+        const runner = Runner.create();
+        Runner.run(runner, engine);
+
+        // Add walls to the world
+        const walls = [
+            Bodies.rectangle(bubbleBox.offsetWidth / 2, 0, bubbleBox.offsetWidth, 10, { isStatic: true }),
+            Bodies.rectangle(bubbleBox.offsetWidth / 2, bubbleBox.offsetHeight, bubbleBox.offsetWidth, 10, { isStatic: true }),
+            Bodies.rectangle(0, bubbleBox.offsetHeight / 2, 10, bubbleBox.offsetHeight, { isStatic: true }),
+            Bodies.rectangle(bubbleBox.offsetWidth, bubbleBox.offsetHeight / 2, 10, bubbleBox.offsetHeight, { isStatic: true })
+        ];
+
+        World.add(engine.world, walls);
+
+        var middlebody = Matter.Bodies.circle(bubbleBox.offsetWidth / 2, bubbleBox.offsetHeight / 2, 10, {
+            render: {
+                        fillStyle: 'transparent',
+                        strokeStyle: 'transparent',
+                        lineWidth: 0
+                    },
+            plugin: {
+                attractors: [
+                function(bodyA, bodyB) {
+                    return {
+                    x: (bodyA.position.x - bodyB.position.x) * 0.5e-6,
+                    y: (bodyA.position.y - bodyB.position.y) * 0.5e-6,
+                    };
+                }
+                ]
+            }}
+            );
+
+
+            var constraint = Constraint.create({
+                pointA: { x: bubbleBox.offsetWidth / 2, y: bubbleBox.offsetHeight / 2 },
+                bodyB: middlebody,
+                length: 0,
+                render: {
+                        fillStyle: 'transparent',
+                        strokeStyle: 'transparent',
+                        lineWidth: 0
+                    }
+            });
+            
+        World.add(engine.world, [middlebody,constraint]);
+
+        let bubble_id = 0 
+        // create bubbles
+        // topics is a dict, use topic and size for this part. 
+        for (const [topic_name,row] of Object.entries(topics)) {
+            const topic = topic_name;
+            const size = row['size'] * 20;
+                if (row['size']>5.5){
+                const bubbleDiv = document.createElement('div');
+                bubbleDiv.className = 'bubble';
+                bubbleDiv.style.width = `${size}px`;
+                bubbleDiv.style.height = `${size}px`;
+                bubbleDiv.style.fontSize = `${size / 8}px`;
+                bubbleDiv.innerText = topic;
+                bubbleDiv.id = bubble_id
+                bubbleDiv.addEventListener('click',e=>popup(e))
+                bubbleDiv.setAttribute('aria-topic',topic)
+                bubble_id+=1
+                bubbleBox.appendChild(bubbleDiv);
+                
+                this_color = choose(palettes)
+
+                const bubble = Bodies.circle(rand() * bubbleBox.offsetWidth, rand() * bubbleBox.offsetHeight, size / 2, {
+                    restitution: 0.9,
+                    render: {
+                        fillStyle: this_color,
+                        strokeStyle: 'transparent',
+                        lineWidth: 1
+                    }
+                });
+
+                World.add(engine.world, bubble);
+                Matter.Body.setVelocity(bubble, { x: 0, y: 0 });
+                // Sync div position with bubble position
+                Matter.Events.on(engine, 'afterUpdate', () => {
+                    bubbleDiv.style.left = `${bubble.position.x - size / 2}px`;
+                    bubbleDiv.style.top = `${bubble.position.y - size / 2}px`;
+                });
+            }
+
+
+        }
+
+
+
+    }
+
+            
+
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('topics.json')
+            .then(response => response.json())
+            .then(topics => {
+                topic_data = topics 
+                render_bubbles(topics)
+        });
+    })
+        
+    
+
+    var modal = document.getElementById("myModal");
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("myBtn");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+    modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+    }
+
+
+    </script>
+    
+</html>
