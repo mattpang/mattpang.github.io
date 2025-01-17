@@ -65,11 +65,15 @@
 <script>
 
     document.getElementById('user_delay').addEventListener('input', function() {
-        document.getElementById('delay').innerText = this.value;
-        document.getElementById('readspeed').innerText = `You are reading at ${Math.round(60*1/(this.value/1000))} wpm. About ${Math.round(0.75*1/(this.value/1000))} tokens per second`
+        update_vals(this.value)
     });
+    
+    function update_vals(value){
+        document.getElementById('delay').innerText = value
+        document.getElementById('readspeed').innerText = `You are reading at ${Math.round(60*1/(value/1000))} wpm. About ${Math.round(0.75*1/(value/1000))} tokens per second`
+    }
 
-    document.getElementById('delay').innerText = document.getElementById('user_delay').value
+    update_vals(document.getElementById('user_delay').value)
 
     function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
