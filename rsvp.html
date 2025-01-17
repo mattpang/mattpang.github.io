@@ -1,0 +1,101 @@
+<html>
+    <head>
+        <link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+>
+<style>
+    .center {
+        margin: auto;
+        width: 50%;
+        padding:10px;
+    }
+    #cursor{
+        font-size: larger;
+        padding: 50px;
+        text-align: center;
+        margin-bottom: 100px;
+    }
+</style>
+<title>StupidWayToMakeYouReadFasterButWayWorse</title>
+    </head>
+    <body>
+        <main class="container">
+            <article>
+
+                <h1>Gotta Read fast.</h1>
+                <p>
+                    Rapid Serial Visual Presentation (RSVP)[1] is a techique that basically hacks your visual processing to enable faster reading by avoiding eye movement. But can you read faster than say, an LLM can generate output tokens? 
+                </p>
+                <p>Average normal reading speed is 150 to 250 words per minute, but grok can spit out tokens much faster ~350 tokens per second on Llama3-70b-8192.</p>
+                
+                <p>
+                    <cite>This is a stupid thing, please don't actually implementate this.</cite>
+                </p>
+                    
+
+                <div id="pad">
+                    <div id="question" class="center"></div>
+                    <div id="cursor" class="center">+</div>
+
+                </div>
+                
+                <fieldset class="grid">
+
+                    <label>Delay between words: <span id="delay"></span> ms
+                        <input id = "user_delay" type="range" value="300" max="1000" min="1" step="1"></input>
+                    </label>
+                    <button onclick="start_textrender()">Start</button>
+                </fieldset>
+                <p id="readspeed"></p>
+                
+                <footer>
+                    
+                    <p>Reference</p>
+                    <p><cite>
+                        [1]: https://elvers.us/perception/rsvp/
+                    </cite>
+                    </p>
+                </footer>
+            </article>
+    </main>
+    </body>
+<script>
+
+    document.getElementById('user_delay').addEventListener('input', function() {
+        document.getElementById('delay').innerText = this.value;
+        document.getElementById('readspeed').innerText = `You are reading at ${Math.round(60*1/(this.value/1000))} wpm. About ${Math.round(0.75*1/(this.value/1000))} tokens per second`
+    });
+
+    document.getElementById('delay').innerText = document.getElementById('user_delay').value
+
+    function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+    async function start_textrender() {
+        try {
+            const response = await fetch('reading.json');
+            const data = await response.json();
+
+            // Set the question text
+            document.getElementById('question').innerText = data[0]['question'];
+
+            // Split the answer into words and render them with a delay
+            const words = data[0]['answer'].split(' ');
+            for (const word of words) {
+                document.getElementById('cursor').innerText = word;
+
+                // Get the delay value
+                const sleepamt = parseInt(document.getElementById('user_delay').value, 10);
+
+                // Wait for the specified delay before continuing
+                await sleep(sleepamt);
+            }
+        } catch (error) {
+            console.error('Error fetching or processing data:', error);
+        }
+    }
+</script>
+
+</html>
