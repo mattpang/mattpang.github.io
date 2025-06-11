@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Foil Catcher Game - Tomoro.ai</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(135deg, #000033, #000000);
+      color: #fff;
+      text-align: center;
+      cursor: crosshair;
+    }
+
+    #gameCanvas {
+      display: block;
+      margin: auto;
+      border: 4px solid #39ff14;
+      box-shadow: 0 0 20px #39ff14;
+    }
+
+    #result {
+      position: absolute;
+      top: 40%;
+      width: 100%;
+      font-size: 3em;
+      font-weight: bold;
+      text-shadow: 0 0 15px #ff00ff, 0 0 25px #00ffff;
+      display: none;
+      animation: explode 2s ease-out forwards;
+      z-index: 69;
+    }
+
+    @keyframes explode {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(2); opacity: 0.8; }
+      80% { transform: scale(2); opacity: 0.3; }
+      100% { transform: scale(3); opacity: 1; }
+    }
+
+    #logo {
+      /* position: absolute; */
+      bottom: 0px;
+      width: 100%;
+      font-size: 8vw;
+      color: rgb(35, 250, 82);
+      font-weight: bold;
+      text-shadow: 2px 2px rgb(246, 246, 246), -2px -2px rgb(230, 255, 6);
+      transform: rotate(-5deg);
+      animation: wave 2s infinite ease-in-out;
+      z-index: 1;
+    }
+
+    @keyframes wave {
+      0%, 100% { transform: rotate(-5deg) scale(1); }
+      50% { transform: rotate(5deg) scale(1.05); }
+    }
+  </style>
+</head>
+<body>
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+<div id="result"></div>
+<div id="logo">tomoro.ai</div>
+<script>
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const bucket = {
+    x: canvas.width / 2 - 40,
+    y: canvas.height - 30,
+    width: 80,
+    height: 20
+  };
+
+  let foils = [];
+  let caught = 0;
+  let total = 0;
+  let gameOver = false;
+  const foilImage = new Image();
+  foilImage.src = 'data:image/svg+xml;base64,' + btoa(`<?xml version="1.0" encoding="iso-8859-1"?>
+  <svg fill="url(#rainbow)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <defs>
+      <linearGradient id="rainbow" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="red"/>
+        <stop offset="20%" stop-color="orange"/>
+        <stop offset="40%" stop-color="yellow"/>
+        <stop offset="60%" stop-color="green"/>
+        <stop offset="80%" stop-color="blue"/>
+        <stop offset="100%" stop-color="violet"/>
+      </linearGradient>
+    </defs>
+    <path d="M256,0C114.62,0,0,114.611,0,256c0,141.38,114.62,256,256,256s256-114.62,256-256C512,114.611,397.38,0,256,0z
+     M478.473,197.069l-137.122,33.05c-0.196-0.64-0.384-1.271-0.589-1.894l129.877-55.339C473.694,180.745,476.279,188.817,478.473,197.069z
+     M294.161,29.03C366.37,41.148,427.264,86.793,460.126,149.53l-130.475,55.595c-11.136-16.085-27.511-28.015-46.541-34.091L294.161,29.03z
+     M320,256c0,35.285-28.715,64-64,64s-64-28.715-64-64c0-35.294,28.715-64,64-64S320,220.706,320,256z M256,25.6
+     c4.292,0,8.482,0.41,12.723,0.649l-10.923,140.339c-0.614-0.017-1.178-0.188-1.801-0.188c-0.077,0-0.154,0.026-0.23,0.026L243.311,26.249
+     C247.535,26.01,251.716,25.6,256,25.6z M217.856,29.03l12.578,141.525c-19.166,5.743-35.644,17.459-47.053,33.323L51.866,149.547
+     C84.727,86.793,145.63,41.139,217.856,29.03z M41.361,172.877l130.338,53.854c-0.213,0.623-0.384,1.263-0.589,1.894L33.527,197.06
+     C35.721,188.809,38.306,180.736,41.361,172.877z M25.6,256c0-11.529,1.126-22.767,2.773-33.843l138.197,32.145
+     c-0.009,0.58-0.171,1.118-0.171,1.698c0,19.9,6.707,38.11,17.69,52.983L91.75,417.289C50.893,375.697,25.6,318.771,25.6,256z
+     M110.652,434.552l91.511-107.349c0.538,0.401,1.007,0.888,1.553,1.28l-72.439,120.943C124.143,444.809,117.214,439.91,110.652,434.552z
+     M256,486.4c-36.83,0-71.543-8.909-102.46-24.337l72.977-121.83c9.276,3.251,19.098,5.367,29.483,5.367
+     c9.882,0,19.226-1.988,28.117-4.941l74.496,121.327C327.671,477.466,292.898,486.4,256,486.4z M380.86,449.348L307.2,329.387
+     c0.555-0.393,1.015-0.896,1.562-1.289l92.715,106.368C394.914,439.825,387.994,444.723,380.86,449.348z
+     M420.369,417.161l-93.346-107.093C338.509,295.006,345.6,276.412,345.6,256c0-0.205-0.06-0.384-0.06-0.589l138.086-33.28
+     c1.638,11.085,2.773,22.332,2.773,33.869C486.4,318.711,461.15,375.578,420.369,417.161z"/>
+  </svg>`);
+
+  function createFoil() {
+    const foil = {
+      x: Math.random() * (canvas.width - 40),
+      y: 0,
+      size: 30,
+      speed: 2 + Math.random() * 3,
+      angle: 0
+    };
+    foils.push(foil);
+  }
+
+  function drawBucket() {
+    const gradient = ctx.createLinearGradient(bucket.x, bucket.y, bucket.x + bucket.width, bucket.y);
+    gradient.addColorStop(0, '#ff00ff');
+    gradient.addColorStop(1, '#39ff14');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(bucket.x, bucket.y, bucket.width, bucket.height);
+    ctx.shadowColor = '#00ffff';
+    ctx.shadowBlur = 20;
+  }
+
+  function drawFoils() {
+    foils.forEach(foil => {
+      ctx.save();
+      ctx.translate(foil.x, foil.y);
+      ctx.rotate(foil.angle);
+      ctx.drawImage(foilImage, -foil.size / 2, -foil.size / 2, foil.size, foil.size);
+      ctx.restore();
+      foil.angle += 0.1;
+    });
+  }
+
+  function updateFoils() {
+    foils.forEach((foil, index) => {
+      foil.y += foil.speed;
+      if (
+        foil.y + foil.size / 2 > bucket.y &&
+        foil.x > bucket.x &&
+        foil.x < bucket.x + bucket.width
+      ) {
+        foils.splice(index, 1);
+        caught++;
+        total++;
+      } else if (foil.y > canvas.height) {
+        foils.splice(index, 1);
+        total++;
+      }
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBucket();
+    drawFoils();
+  }
+
+  function update() {
+    if (gameOver) return;
+    updateFoils();
+    draw();
+  }
+
+  canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    bucket.x = e.clientX - rect.left - bucket.width / 2;
+  });
+
+  function endGame() {
+    gameOver = true;
+    const percent = (caught / total) * 100;
+    let reward = 2500;
+    if (percent > 90) reward = 5000;
+    else if (percent > 50) reward = 3000;
+    const result = document.getElementById('result');
+    result.style.display = 'block';
+    result.innerHTML = `✨💥<br>You caught ${Math.round(percent)}%!<br>You win £${reward}!<br>💥✨`;
+  }
+
+  setInterval(() => {
+    if (!gameOver) createFoil();
+  }, 300);
+
+  let gameTimer = setTimeout(endGame, 10000);
+
+  function gameLoop() {
+    update();
+    requestAnimationFrame(gameLoop);
+  }
+
+  foilImage.onload = () => gameLoop();
+</script>
+</body>
+</html>
