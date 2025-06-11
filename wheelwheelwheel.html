@@ -180,9 +180,11 @@
   function endGame() {
     gameOver = true;
     const percent = (caught / total) * 100;
-    let reward = 2500;
-    if (percent > 90) reward = 5000;
+    let reward = 500;
+    if (percent > 80) reward = 5000;
     else if (percent > 50) reward = 3000;
+    else if (percent > 25) reward = 2500;
+    else if (percent > 15) reward = 1500;
     const result = document.getElementById('result');
     result.style.display = 'block';
     result.innerHTML = `✨💥<br>You caught ${Math.round(percent)}%!<br>You win £${reward}!<br>💥✨`;
